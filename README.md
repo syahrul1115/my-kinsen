@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Performance of Dosen Web Application
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Resources](#resources)
+- [Technologies Used](#technologies-used)
+    - [Frontend](#frontend)
+    - [Backend](#backend)
+- [Getting Started](#getting-started)
+- [Acknowledgments](#acknowledgments)
+
+## Overview
+
+Performance of Dosen is a full-stack web application that enables users to handle quesioner.
+
+## Features
+
+- User Authentication: All of features authentication.
+- Quesioner: Users can send, and archive their quesioner.
+- Performance: Users can see dashboard performance their quesioner.
+- Admin: Users can manage all data like teacher, and class.
+
+## Resources
+
+- Page View Users (Siswa)
+
+![home-users-siswa](public/home-users-siswa.png)
+
+- Page View Users (Teacher)
+
+![home-users-teacher](public/home-users-teacher.png)
+
+- Page View Users (Admin)
+
+![home-users-admin](public/home-users-admin.png)
+
+
+## Technologies Used
+
+### Frontend
+
+- NodeJs
+- React (Framework NextJs)
+- TailwindCSS (With Shadcn UI)
+- Better Auth
+- React Query
+- React Hook Form
+- Pipeline CI/CD
+- Docker
+
+### Backend
+
+- NodeJs
+- NextJs Handler
+- Kysely
+- PostgreSQL
+- Pipeline CI/CD
+- Docker
 
 ## Getting Started
 
-First, run the development server:
+To get started with the Performance of Dosen web application project, follow the setup instructions in the respective directories:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- [Instructions](README.md)
+
+#### Instal All Module
+
+Note: Don't forget to install pnpm, becouse this project using pnpm for build tool.
+
+```
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### Migrate Table
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Note: Don't forget to migrate all tables.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+pnpm better:auth:migrate
+```
 
-## Learn More
+#### Run Dev (run development server)
 
-To learn more about Next.js, take a look at the following resources:
+```
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### Run Build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+pnpm build
+```
 
-## Deploy on Vercel
+## Acknowledgments
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Special thanks to the developers and maintainers of the technologies used in this project. Their hard work and dedication make projects like this possible.
