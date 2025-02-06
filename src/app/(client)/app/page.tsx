@@ -4,9 +4,6 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 
-// hooks
-import { useProfileDosen, useProfileMahasiswa } from "@/hooks/use-fetcher"
-
 // components
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"

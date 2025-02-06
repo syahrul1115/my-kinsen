@@ -65,11 +65,10 @@ import { useToast } from "@/hooks/use-toast";
 
 // services
 import { serviceListDosen } from "@/app/(server)/api/dosen/services";
+import { serviceCreateNewMatkul, serviceListMatkuls } from "@/app/(server)/api/matkul/services";
 
 // types
-import { Paged, ResultService } from "@/types/app";
 import { Matkul } from "@/types/api";
-import { serviceCreateNewMatkul } from "@/app/(server)/api/matkul/services";
 
 const formSchemaCreateNewMatkul = z.object({
     name: z.string()
@@ -102,7 +101,7 @@ const FormDialogMatkul = () => {
     // STATE DATA DIALOG
     const [open, setOpen] = React.useState<boolean>(false)
 
-    const queryListDosen = useQuery({ queryKey: [""], queryFn: () => serviceListDosen(page, pageSize, search) })
+    const queryListDosen = useQuery({ queryKey: ["list-dosen"], queryFn: () => serviceListDosen(page, pageSize, search) })
 
     const mutationCreateNewMatkul = useMutation({ mutationKey: ["create-matkul"], mutationFn: serviceCreateNewMatkul })
 
@@ -249,7 +248,7 @@ type MatKulTable = {
     teacher: string;
 }
 
-export const columns: ColumnDef<MatKulTable>[] = [
+export const columns: ColumnDef<MatKulTable, string>[] = [
     {
         id: "select",
         header: ({ table }) => table.getIsAllPageRowsSelected() && (
@@ -344,19 +343,21 @@ export const columns: ColumnDef<MatKulTable>[] = [
     }
 ]
 
-interface DataTableProps<TValue> {
-    columns: ColumnDef<MatKulTable, TValue>[]
-    data: MatKulTable[]
+interface DataTableProps<TData> {
+    columns: {
+        [K in keyof Required<TData>]: ColumnDef<TData, TData[K]>;
+    }[keyof TData][];
+    data: TData[]
     previousPage: () => void;
     nextPage: () => void;
 }
 
-function DataTable<TValue>({
+function DataTable<TData>({
     columns,
     data,
     previousPage,
     nextPage
-}: DataTableProps<TValue>) {
+}: DataTableProps<TData>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -506,29 +507,11 @@ type MatkulDto = Matkul & {
     }
 }
 
-const listMatkuls = async (page: number, pageSize: number, search?: string): Promise<ResultService<Paged<MatkulDto>>> => {
-    const params = search ? `?search=${search}&page=${page}&pageSize=${pageSize}` : `?page=${page}&pageSize=${pageSize}`
-    const options: RequestInit = {
-        method: 'GET'
-    }
-
-    const response = await fetch("/api/matkul/all" + params, options)
-
-    return await response.json() as ResultService<Paged<MatkulDto>>;
-}
-
-const useServiceListMatkuls = (page: number, pageSize: number, search?: string) => {
-    return useQuery({
-        queryKey: ['list-matkuls'],
-        queryFn: async () => await listMatkuls(page, pageSize, search)
-    })
-}
-
 export default function MataKuliah() {
     const [page, setPage] = React.useState<number>(1)
     const [pageSize] = React.useState<number>(5)
 
-    const queryListMatkuls = useServiceListMatkuls(page, pageSize)
+    const queryListMatkuls = useQuery({ queryKey: ['list-matkuls'], queryFn: () => serviceListMatkuls(page, pageSize) })
 
     const convertMatkulForTable = (items: MatkulDto[]): MatKulTable[] => {
         const newList: MatKulTable[] = []
@@ -555,7 +538,7 @@ export default function MataKuliah() {
         <section className="flex flex-col gap-8 p-8">
             <DataTable
                 columns={columns}
-                data={queryListMatkuls.data ? convertMatkulForTable(queryListMatkuls.data.data.items) : []}
+                data={convertMatkulForTable(queryListMatkuls.data?.data.items ?? []) as MatKulTable[]}
                 previousPage={() => page > 1 && setPage(page - 1)}
                 nextPage={() => Number(queryListMatkuls.data?.data.totalCount) > pageSize && setPage(page + 1)}
             />
