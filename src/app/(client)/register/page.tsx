@@ -4,8 +4,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-// others
+import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -19,35 +18,45 @@ import { useToast } from "@/hooks/use-toast";
 // components
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+
+// services
+import { serviceCreateProfileMahasiswa } from "@/app/(server)/api/mahasiswa/services";
 
 const formSchemaSignUp = z.object({
     name: z.string()
-        .min(2, {
+        .min(1, {
             message: 'Name is not empty!',
         }),
     email: z.string()
-        .min(2, {
+        .min(1, {
             message: "Email is not empty!",
         })
         .email({
             message: 'Email is not valid!'
         }),
     nim: z.string()
-        .min(2, {
-            message: 'Nim is not empty!',
+        .min(1, {
+            message: 'Nim should be minimal 1!',
+        })
+        .max(8, {
+            message: "Nim should be maximal 12!"
         }),
     studyProgram: z.string()
-        .min(2, {
-            message: 'Studi Program is not empty!',
+        .min(1, {
+            message: 'Study Program is not empty!',
         }),
     semester: z.string()
-        .min(2, {
-            message: 'Semester is not empty!',
+        .min(1, {
+            message: 'Semester should be minimal 1 until 8!',
+        })
+        .max(8, {
+            message: "Semester should be maximal 8!"
         }),
     password: z.string()
-        .min(2, {
-            message: 'Password is not empty!',
+        .min(8, {
+            message: 'Password should be minimal 8 digit characters!',
         }),
 })
 
@@ -55,17 +64,21 @@ export default function Register() {
     const router = useRouter()
     const alert = useToast()
 
+    const mutationCreateProfileMahasiswa = useMutation({ mutationKey: ["create-profile-mahasiswa"],
+        mutationFn: serviceCreateProfileMahasiswa
+    })
+
     const [isPending, setIsPending] = React.useState<boolean>(false)
 
     const formSignUp = useForm<z.infer<typeof formSchemaSignUp>>({
         resolver: zodResolver(formSchemaSignUp),
         defaultValues: {
-            email: '',
-            password: '',
-            name: '',
-            nim: '',
-            studyProgram: '',
-            semester: ''
+            email: "",
+            password: "",
+            name: "",
+            nim: "",
+            studyProgram: "",
+            semester: ""
         },
     })
     const onSubmitSignUp = async (values: z.infer<typeof formSchemaSignUp>) => {
@@ -77,27 +90,25 @@ export default function Register() {
             callbackURL: "/app"
         }, {
             onSuccess: async () => {
-                // TO DO ...
                 const { nim, studyProgram, semester } = await formSchemaSignUp.parseAsync(values)
-                await fetch('/api/mahasiswa/save', {
-                    method: 'POST',
-                    body: JSON.stringify({ nim, studyProgram, semester })
-                })
+                mutationCreateProfileMahasiswa.mutate({ nim, studyProgram, semester })
                 
+                if (mutationCreateProfileMahasiswa.isSuccess) {
+                    alert.toast({
+                        variant: 'default',
+                        title: 'Success',
+                        description: 'Anda berhasil melakukan pendaftaran akun.',
+                    })
+                }
                 setIsPending(false)
-                alert.toast({
-                    variant: 'default',
-                    title: 'Success',
-                    description: 'Anda berhasil melakukan pendaftaran akun.',
-                })
             },
             onError: (ctx) => {
-                setIsPending(false)
                 alert.toast({
                     variant: 'destructive',
                     title: 'Error',
                     description: ctx.error.message,
                 })
+                setIsPending(false)
             },
         })
     }
@@ -161,9 +172,20 @@ export default function Register() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Study Program</FormLabel>
-                                        <FormControl>
-                                            <Input {...field} />
-                                        </FormControl>
+                                        <Select
+                                            onValueChange={field.onChange}
+                                            defaultValue={field.value}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Pilih Program Studi" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem id="studyProgram" value="teknik informatika">Teknik Informatika</SelectItem>
+                                                <SelectItem id="studyProgram" value="teknik sipil">Teknik Sipil</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -175,7 +197,7 @@ export default function Register() {
                                     <FormItem>
                                         <FormLabel>Semester</FormLabel>
                                         <FormControl>
-                                            <Input {...field} />
+                                            <Input type="number" min={1} max={8} {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -195,7 +217,12 @@ export default function Register() {
                                 )}
                             />
                         </div>
-                        <Button type="submit" disabled={isPending}>{isPending ? "LOADING..." : "DAFTAR"}</Button>
+                        <Button
+                            type="submit"
+                            disabled={isPending || mutationCreateProfileMahasiswa.isPending}
+                        >
+                            {isPending || mutationCreateProfileMahasiswa.isPending ? "LOADING..." : "DAFTAR"}
+                        </Button>
                         <p className='text-xs text-center'>
                             Sudah punya akun? {" "}
                             <Link href={"/login"} className='underline'>Masuk sekarang</Link>
