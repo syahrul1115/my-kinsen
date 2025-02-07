@@ -26,15 +26,12 @@ export const ModuleQuesioner: React.FC<Props> = ({ index, value, control }) => {
                 <AccordionTrigger className="font-bold">{value.type.toUpperCase()}</AccordionTrigger>
                 <AccordionContent className="space-y-3">
                     {value.quesioners.map((_, idx) => (
-                        <div key={idx} className="border bg-[#FDFDFD] rounded-2xl px-8 py-3 flex gap-3 items-start">
+                        <div key={idx} className="border bg-[#FDFDFD] rounded-2xl px-8 py-3 flex flex-col md:flex-row gap-3 items-start">
                             <Controller
                                 render={({ field }) => (
-                                    <input
-                                        type="text"
-                                        {...field}
-                                        disabled
-                                        className="question_quesioner bg-transparent font-bold rounded px-3 py-2 w-full"
-                                    />
+                                    <textarea id="quesioner" cols={36} rows={4} disabled {...field} className="bg-[#FDFDFD] resize-none">
+
+                                    </textarea>
                                 )}
                                 name={`moduleQuesioners.${index}.quesioners.${idx}.question`}
                                 control={control}

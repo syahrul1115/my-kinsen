@@ -151,47 +151,53 @@ export default function MySimpleQuesioner() {
         <section className="bg-[#FDFDFD] rounded-2xl px-8 py-16 m-8">
             <form onSubmit={handleSubmit(submit)}>
                 <div className="flex flex-col gap-16">
-                    <div className="flex items-center justify-between gap-3">
-                        <Select
-                            onValueChange={value => {
-                                setMatkul(value);
-                                setDosenName(
-                                    queryListMatkuls.data?.data.items.find(i => value === i.name)?.teacher.name ?? ""
-                                )
-                                setDosenNbm(
-                                    queryListMatkuls.data?.data.items.find(i => value === i.name)?.teacher.nbm ?? ""
-                                )
-                            }}
-                            value={matkul}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="PILIH MATA KULIAH" />
-                            </SelectTrigger>
-                            <SelectContent className="max-w-sm">
-                                <div className="w-[374px]">
-                                    <Input
-                                        placeholder="CARI MATA KULIAH"
-                                        value={search}
-                                        onChange={input => setSearch(input.target.value)}
-                                    />
-                                </div>
-                                {queryListMatkuls.data?.data.items.filter(i =>
-                                    queryGetProfile.data?.data.profile.studyProgram === i.studyProgram &&
-                                    queryGetProfile.data?.data.profile.semester === i.semester &&
-                                    queryListQuesioners.data?.data.items.find(q => q.toName === i.teacher.name)?.toName !== i.teacher.name
-                                ).map(i =>
-                                    <SelectItem id="matkul" key={i.id} value={i.name}>
-                                        {i.name.toUpperCase()}
-                                    </SelectItem>
-                                )}
-                            </SelectContent>
-                        </Select>
-                        <Input
-                            placeholder="Dosen Pengajar"
-                            defaultValue={dosenName}
-                            disabled
-                            className="text-black"
-                        />
+                    <div className="flex flex-col md:flex-row items-start md:justify-center justify-between gap-8">
+                        <div className="grid gap-3 w-full">
+                            <Label htmlFor="matkul">Mata Kuliah</Label>
+                            <Select
+                                onValueChange={value => {
+                                    setMatkul(value);
+                                    setDosenName(
+                                        queryListMatkuls.data?.data.items.find(i => value === i.name)?.teacher.name ?? ""
+                                    )
+                                    setDosenNbm(
+                                        queryListMatkuls.data?.data.items.find(i => value === i.name)?.teacher.nbm ?? ""
+                                    )
+                                }}
+                                value={matkul}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Pilih Mata Kuliah" />
+                                </SelectTrigger>
+                                <SelectContent className="max-w-xs">
+                                    <div className="w-full md:w-[374px]">
+                                        <Input
+                                            placeholder="CARI MATA KULIAH"
+                                            value={search}
+                                            onChange={input => setSearch(input.target.value)}
+                                        />
+                                    </div>
+                                    {queryListMatkuls.data?.data.items.filter(i =>
+                                        queryGetProfile.data?.data.profile.studyProgram === i.studyProgram &&
+                                        queryGetProfile.data?.data.profile.semester === i.semester &&
+                                        queryListQuesioners.data?.data.items.find(q => q.toName === i.teacher.name)?.toName !== i.teacher.name
+                                    ).map(i =>
+                                        <SelectItem id="matkul" key={i.id} value={i.name}>
+                                            {i.name.toUpperCase()}
+                                        </SelectItem>
+                                    )}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="grid gap-3 w-full">
+                            <Label htmlFor="pengajar">Pengajar</Label>
+                            <Input
+                                placeholder="Pengajar"
+                                defaultValue={dosenName}
+                                disabled
+                                className="text-black"
+                            />
+                        </div>
                     </div>
                     <ul className="space-y-16">
                         {fields.map((item, index) => (
