@@ -40,7 +40,7 @@ const formSchemaSignUp = z.object({
         .min(1, {
             message: 'Nim should be minimal 1!',
         })
-        .max(8, {
+        .max(12, {
             message: "Nim should be maximal 12!"
         }),
     studyProgram: z.string()
