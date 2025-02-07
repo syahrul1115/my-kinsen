@@ -18,7 +18,6 @@ import { useToast } from "@/hooks/use-toast";
 // components
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
 // services
@@ -77,7 +76,7 @@ export default function Register() {
             password: "",
             name: "",
             nim: "",
-            studyProgram: "",
+            studyProgram: "Teknik Informatika",
             semester: ""
         },
     })
@@ -162,30 +161,6 @@ export default function Register() {
                                         <FormControl>
                                             <Input {...field} />
                                         </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={formSignUp.control}
-                                name="studyProgram"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Study Program</FormLabel>
-                                        <Select
-                                            onValueChange={field.onChange}
-                                            defaultValue={field.value}
-                                        >
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Pilih Program Studi" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectItem id="studyProgram" value="teknik informatika">Teknik Informatika</SelectItem>
-                                                <SelectItem id="studyProgram" value="teknik sipil">Teknik Sipil</SelectItem>
-                                            </SelectContent>
-                                        </Select>
                                         <FormMessage />
                                     </FormItem>
                                 )}
