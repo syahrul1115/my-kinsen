@@ -54,19 +54,22 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 const formSchemaCreateNewMatkul = z.object({
     name: z.string()
-        .min(2, {
+        .min(1, {
             message: 'Name is not empty!',
         }),
     studyProgram: z.string()
-        .min(2, {
+        .min(1, {
             message: "Study Program is not empty!",
         }),
     semester: z.string()
-        .min(2, {
-            message: 'Semester is not empty!',
+        .min(1, {
+            message: 'Semester should be minimal 1 until 8!',
+        })
+        .max(8, {
+            message: "Semester should be maximal 8!"
         }),
     dosenId: z.string()
-        .min(2, {
+        .min(1, {
             message: 'Teacher is not empty!',
         }),
 })
@@ -119,7 +122,7 @@ const FormDialogMatkul: React.FC<{ title: string; edit?: MatkulDto }> = ({
         resolver: zodResolver(formSchemaCreateNewMatkul),
         defaultValues: {
             name: edit ? edit.name : "",
-            studyProgram: edit ? edit.studyProgram : "",
+            studyProgram: "Teknik Informatika",
             semester: edit ? edit.semester : "",
             dosenId: edit ? edit.dosenId :  ""
         },
@@ -215,25 +218,12 @@ const FormDialogMatkul: React.FC<{ title: string; edit?: MatkulDto }> = ({
                                 />
                                 <FormField
                                     control={formCreateNewMatkul.control}
-                                    name="studyProgram"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Study Program</FormLabel>
-                                            <FormControl>
-                                                <Input {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={formCreateNewMatkul.control}
                                     name="semester"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Semester</FormLabel>
                                             <FormControl>
-                                                <Input {...field} />
+                                                <Input type="number" min={1} max={8} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
