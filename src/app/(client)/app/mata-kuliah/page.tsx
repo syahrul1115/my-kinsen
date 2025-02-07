@@ -4,19 +4,8 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import {
-    ColumnDef,
-    ColumnFiltersState,
-    SortingState,
-    VisibilityState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    useReactTable,
-} from "@tanstack/react-table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { MoreHorizontal } from "lucide-react";
 
 // components
 import {
@@ -31,14 +20,11 @@ import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuCheckboxItem,
     DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
     Dialog,
     DialogContent,
@@ -56,19 +42,15 @@ import {
     SelectTrigger,
     SelectValue
 } from "@/components/ui/select"
-
-// icons
-import { MoreHorizontal, ArrowUpDown } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // hooks
 import { useToast } from "@/hooks/use-toast";
 
 // services
 import { serviceListDosen } from "@/app/(server)/api/dosen/services";
-import { serviceCreateNewMatkul, serviceListMatkuls } from "@/app/(server)/api/matkul/services";
-
-// types
-import { Matkul } from "@/types/api";
+import { serviceCreateNewMatkul, serviceDeleteMatkul, serviceListMatkuls, serviceUpdateMatkul } from "@/app/(server)/api/matkul/services";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 const formSchemaCreateNewMatkul = z.object({
     name: z.string()
@@ -89,29 +71,57 @@ const formSchemaCreateNewMatkul = z.object({
         }),
 })
 
-const FormDialogMatkul = () => {
+type MatkulDto = {
+    name: string;
+    studyProgram: string;
+    semester: string;
+    dosenId: string;
+    createdAt: Date;
+    id: string;
+    updatedAt: Date;
+    teacher: {
+        id: string;
+        name: string;
+        nbm: string;
+    }
+}
+
+const FormDialogMatkul: React.FC<{ title: string; edit?: MatkulDto }> = ({
+    title,
+    edit
+}) => {
     const alert = useToast()
     const queryClient = useQueryClient()
 
     // STATE DATA PAGINATION
     const [page] = React.useState<number>(1)
     const [pageSize] = React.useState<number>(5)
-    const [search, setSearch] = React.useState<string>("")
+    const [search, setSearch] = React.useState<string>(edit ? edit.teacher.name : "")
     
     // STATE DATA DIALOG
     const [open, setOpen] = React.useState<boolean>(false)
 
     const queryListDosen = useQuery({ queryKey: ["list-dosen"], queryFn: () => serviceListDosen(page, pageSize, search) })
 
+    React.useEffect(() => { queryListDosen.refetch() },[search, queryListDosen])
+
     const mutationCreateNewMatkul = useMutation({ mutationKey: ["create-matkul"], mutationFn: serviceCreateNewMatkul })
+    const mutationUpdateMatkul = useMutation({ mutationKey: ["update-matkul"], mutationFn: (
+        request: {
+            name: string;
+            semester: string;
+            studyProgram: string;
+            dosenId: string;
+        }
+    ) => serviceUpdateMatkul(edit ? edit.id : "", request) })
 
     const formCreateNewMatkul = useForm<z.infer<typeof formSchemaCreateNewMatkul>>({
         resolver: zodResolver(formSchemaCreateNewMatkul),
         defaultValues: {
-            name: "",
-            studyProgram: "",
-            semester: "",
-            dosenId: ""
+            name: edit ? edit.name : "",
+            studyProgram: edit ? edit.studyProgram : "",
+            semester: edit ? edit.semester : "",
+            dosenId: edit ? edit.dosenId :  ""
         },
     })
     const onSubmitCreateNewMatkul = async (values: z.infer<typeof formSchemaCreateNewMatkul>) => {
@@ -142,21 +152,52 @@ const FormDialogMatkul = () => {
             },
         })
     }
+    const onSubmitEditMatkul = async (values: z.infer<typeof formSchemaCreateNewMatkul>) => {
+        mutationUpdateMatkul.mutate({
+            name: values.name,
+            studyProgram: values.studyProgram,
+            semester: values.semester,
+            dosenId: values.dosenId
+        }, {
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: ["list-matkuls"]})
+                formCreateNewMatkul.reset()
+                setOpen(false)
+                alert.toast({
+                    variant: 'default',
+                    title: 'Success',
+                    description: 'Anda berhasil memperbarui mata kuliah.',
+                })
+            },
+            onError: (error) => {
+                alert.toast({
+                    variant: 'destructive',
+                    title: 'Error',
+                    description: error.message,
+                })
+            },
+        })
+    }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="ml-auto font-bold">BUAT MATA KULIAH</Button>
+                {edit ? (
+                    <Button variant="ghost" className="w-full justify-start px-2">{title}</Button>
+                ) : (
+                    <Button className="ml-auto font-bold">{title}</Button>
+                )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>BUAT MATA KULIAH</DialogTitle>
+                    <DialogTitle>{title}</DialogTitle>
                     <DialogDescription>
-                        Buat mata kuliah dan sesuaikan pengajarnya. Klik BUAT untuk menyimpan.
+                        {edit ? "Edit mata kuliah" : "Buat mata kuliah"} dan sesuaikan pengajarnya.
+                        Klik {edit ? "EDIT" : "BUAT"} untuk menyimpan.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...formCreateNewMatkul}>
-                    <form onSubmit={formCreateNewMatkul.handleSubmit(onSubmitCreateNewMatkul)}>
+                    <form onSubmit={formCreateNewMatkul.handleSubmit(edit ? onSubmitEditMatkul : onSubmitCreateNewMatkul)}>
                         <div className='grid gap-3 py-3'>
                             <div className='space-y-3'>
                                 <FormField
@@ -231,7 +272,7 @@ const FormDialogMatkul = () => {
                                 />
                             </div>
                             <DialogFooter>
-                                <Button type="submit" className="font-bold">BUAT</Button>
+                                <Button type="submit" className="font-bold">{edit ? "EDIT" : "BUAT"}</Button>
                             </DialogFooter>
                         </div>
                     </form>
@@ -241,288 +282,35 @@ const FormDialogMatkul = () => {
     );
 }
 
-type MatKulTable = {
-    id: string;
-    name: string;
-    semester: string;
-    teacher: string;
-}
-
-export const columns: ColumnDef<MatKulTable, string>[] = [
-    {
-        id: "select",
-        header: ({ table }) => table.getIsAllPageRowsSelected() && (
-            <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                aria-label="Select all"
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-            />
-        ),
-        enableSorting: false,
-        enableHiding: false
-    },
-    {
-        accessorKey: "name",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Nama
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        }
-    },
-    {
-        accessorKey: "semester",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Semester
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        }
-    },
-    {
-        accessorKey: "teacher",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Pangajar
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        }
-    },
-    {
-        id: "actions",
-        cell: ({ row }) => {
-            const payment = row.original
-
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                            onClick={() => navigator.clipboard.writeText(payment.id)}
-                        >
-                            Copy payment ID
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>View customer</DropdownMenuItem>
-                        <DropdownMenuItem>View payment details</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            )
-        }
-    }
-]
-
-interface DataTableProps<TData> {
-    columns: {
-        [K in keyof Required<TData>]: ColumnDef<TData, TData[K]>;
-    }[keyof TData][];
-    data: TData[]
-    previousPage: () => void;
-    nextPage: () => void;
-}
-
-function DataTable<TData>({
-    columns,
-    data,
-    previousPage,
-    nextPage
-}: DataTableProps<TData>) {
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-    const [rowSelection, setRowSelection] = React.useState({})
-
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onSortingChange: setSorting,
-        getSortedRowModel: getSortedRowModel(),
-        onColumnFiltersChange: setColumnFilters,
-        getFilteredRowModel: getFilteredRowModel(),
-        onColumnVisibilityChange: setColumnVisibility,
-        onRowSelectionChange: setRowSelection,
-        state: {
-            sorting,
-            columnFilters,
-            columnVisibility,
-            rowSelection
-        }
-    })
-
-    return (
-        <div className="bg-[#FDFDFD] rounded-2xl flex flex-col gap-3 p-8">
-            <div className="flex items-center gap-3 py-4">
-                <Input
-                    placeholder="Cari nama matkul, pengajar"
-                    value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-                    onChange={(event) =>
-                        table.getColumn("name")?.setFilterValue(event.target.value)
-                    }
-                    className="max-w-sm"
-                />
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline">
-                            Columns
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        {table
-                            .getAllColumns()
-                            .filter(
-                                (column) => column.getCanHide()
-                            )
-                            .map((column) => {
-                                return (
-                                    <DropdownMenuCheckboxItem
-                                        key={column.id}
-                                        className="capitalize"
-                                        checked={column.getIsVisible()}
-                                        onCheckedChange={(value) =>
-                                            column.toggleVisibility(!!value)
-                                        }
-                                    >
-                                        {column.id}
-                                    </DropdownMenuCheckboxItem>
-                                )
-                            })}
-                    </DropdownMenuContent>
-                </DropdownMenu>
-                <FormDialogMatkul />
-            </div>
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead key={header.id}>
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
-                                        </TableHead>
-                                    )
-                                })}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
-            <div className="flex-1 text-sm text-muted-foreground">
-                {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                {table.getFilteredRowModel().rows.length} row(s) selected.
-            </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                        previousPage();
-                        table.previousPage()
-                    }}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    Previous
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                        nextPage();
-                        table.nextPage();
-                    }}
-                    disabled={!table.getCanNextPage()}
-                >
-                    Next
-                </Button>
-            </div>
-        </div>
-    )
-}
-
-type MatkulDto = Matkul & {
-    teacher: {
-        id: string;
-        name: string;
-        nbm: string;
-    }
-}
-
 export default function MataKuliah() {
+    const queryClient = useQueryClient()
+    const alert = useToast()
+
     const [page, setPage] = React.useState<number>(1)
     const [pageSize] = React.useState<number>(5)
+    const [search, setSearch] = React.useState<string>("")
 
-    const queryListMatkuls = useQuery({ queryKey: ['list-matkuls'], queryFn: () => serviceListMatkuls(page, pageSize) })
+    const queryListMatkuls = useQuery({ queryKey: ['list-matkuls'], queryFn: () => serviceListMatkuls(page, pageSize, search) })
 
-    const convertMatkulForTable = (items: MatkulDto[]): MatKulTable[] => {
-        const newList: MatKulTable[] = []
-        items.forEach(i => newList.push({
-            id: i.id,
-            name: i.name,
-            semester: i.semester,
-            teacher: i.teacher.name
-        }))
-        return newList;
-    }
+    React.useEffect(() => { queryListMatkuls.refetch() }, [search, queryListMatkuls])
+
+    const mutationDeleteMatkul = useMutation({ mutationKey: ["delete-matkul"], mutationFn: serviceDeleteMatkul,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["list-matkuls"] })
+            alert.toast({
+                variant: 'default',
+                title: 'Success',
+                description: 'Anda berhasil menghapus mata kuliah.',
+            })
+        },
+        onError: (error) => {
+            alert.toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: error.message,
+            })
+        }
+    })
 
     // LOADING VIEW ELEMENTS
     if (queryListMatkuls.isLoading) {
@@ -536,12 +324,112 @@ export default function MataKuliah() {
     // VIEW MATA KULIAH ELEMENTS
     return (
         <section className="flex flex-col gap-8 p-8">
-            <DataTable
-                columns={columns}
-                data={convertMatkulForTable(queryListMatkuls.data?.data.items ?? []) as MatKulTable[]}
-                previousPage={() => page > 1 && setPage(page - 1)}
-                nextPage={() => Number(queryListMatkuls.data?.data.totalCount) > pageSize && setPage(page + 1)}
-            />
+            <div className="bg-[#FDFDFD] rounded-2xl px-8 py-10 space-y-8">
+                <div className="flex items-center gap-3">
+                    <Input
+                        placeholder="Cari..."
+                        name="search"
+                        value={search}
+                        onChange={input => setSearch(input.target.value)}
+                        className="md:max-w-sm"
+                    />
+                    <FormDialogMatkul title="BUAT MATA KULIAH" />
+                </div>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Pengajar</TableHead>
+                            <TableHead>Nama</TableHead>
+                            <TableHead>Semester</TableHead>
+                            <TableHead>Program Studi</TableHead>
+                            <TableHead className="text-right">Dibuat</TableHead>
+                            <TableHead></TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {queryListMatkuls.data?.data.items.map((mk, idx) => (
+                            <TableRow key={idx}>
+                                <TableCell className="font-medium">
+                                    <div className="flex items-center gap-3">
+                                        <Avatar>
+                                            <AvatarImage src="" alt={`avatar-user-${mk.teacher.name}`} />
+                                            <AvatarFallback>{mk.teacher.name.slice(0, 2)}</AvatarFallback>
+                                        </Avatar>
+                                        <p>{mk.teacher.name}</p>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    {mk.name}
+                                </TableCell>
+                                <TableCell>
+                                    {mk.semester}
+                                </TableCell>
+                                <TableCell>
+                                    {mk.studyProgram}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    {new Date(mk.createdAt).toLocaleDateString('id-ID', { dateStyle: "full" })}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                                <span className="sr-only">Open menu</span>
+                                                <MoreHorizontal className="h-4 w-4" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                            <DropdownMenuItem asChild>
+                                                <FormDialogMatkul title="Edit" edit={mk} />
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button variant="ghost" className="w-full justify-start px-2">
+                                                            Delete
+                                                        </Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Delete</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                Apakah anda yakin ingin menghapus mata kuliah {mk.name}?
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Batal</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={() => mutationDeleteMatkul.mutate(mk.id)}>
+                                                                Yakin
+                                                            </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+                <div className="flex items-center justify-end gap-3">
+                    <Button
+                        variant="outline"
+                        onClick={() => Number(queryListMatkuls.data?.data.currentPage) > 1 && setPage(page - 1)}
+                        disabled={Number(queryListMatkuls.data?.data.currentPage) < 2}
+                    >
+                        Halaman sebelumnya
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => Number(queryListMatkuls.data?.data.totalCount) > pageSize && setPage(page + 1)}
+                        disabled={Number(queryListMatkuls.data?.data.totalCount) < pageSize}
+                    >
+                        Halaman berikutnya
+                    </Button>
+                </div>
+            </div>
         </section>
     );
 }

@@ -2,7 +2,7 @@ import { NewMatkul, MatkulUpdate } from '@/types/api'
 import { db } from '@/utils/database'
 import { jsonObjectFrom } from 'kysely/helpers/postgres'
 
-export async function findById(id: string) {
+export async function findByMatkulId(id: string) {
     return await db.selectFrom('matkul')
         .where('id', '=', id)
         .selectAll()
@@ -63,4 +63,10 @@ export async function create(person: NewMatkul) {
         .values(person)
         .returningAll()
         .executeTakeFirstOrThrow()
+}
+
+export async function deleteById(id: string) {
+    return await db.deleteFrom('matkul').where('id', '=', id)
+        .returningAll()
+        .executeTakeFirst()
 }

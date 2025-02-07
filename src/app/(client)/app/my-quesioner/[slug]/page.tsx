@@ -2,122 +2,30 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { Control, Controller, FieldArrayWithId, useFieldArray, useForm } from "react-hook-form"
+import { useFieldArray, useForm } from "react-hook-form"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 // services
 import { serviceCreateQuesioner, serviceListQuesioners } from "@/app/(server)/api/quesioner/services"
+import { serviceGetProfileMahasiswa } from "@/app/(server)/api/mahasiswa/services"
+import { serviceListMatkuls } from "@/app/(server)/api/matkul/services"
 
 // components
 import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { serviceGetProfileMahasiswa } from "@/app/(server)/api/mahasiswa/services"
-import { serviceListMatkuls } from "@/app/(server)/api/matkul/services"
 import { Textarea } from "@/components/ui/textarea"
+import { ModuleQuesioner } from "@/components/ui/module-quesioner"
+
+// hooks
 import { useToast } from "@/hooks/use-toast"
 
-type Quesioner = {
-    question: string;
-    value: string;
-}
+// utils
+import { initModuleQuesionerList } from "@/utils"
 
-type ModuleQuesioner = {
-    type: string;
-    quesioners: Quesioner[]
-}
-
-type ModuleQuesionerList = {
-    moduleQuesioners: ModuleQuesioner[]
-}
-
-const initModuleQuesionerList: ModuleQuesioner[] = [
-    {
-        type: "Rencana Pembelajaran",
-        quesioners: [
-            {
-                question: "1. Dosen menyampaikan tujuan pembelajaran dengan jelas di awal perkuliahan?",
-                value: "0"
-            },
-            {
-                question: "2. Dosen menjelaskan silabus dan rencana pembelajaran semester (RPS) secara lengkap?",
-                value: "0"
-            },
-            {
-                question: "3. Materi yang disampaikan sesuai dengan rencana pembelajaran semester?",
-                value: "0"
-            },
-            {
-                question: "4. Dosen menggunakan bahan ajar yang relevan dan up-to-date?",
-                value: "0"
-            },
-        ]
-    },
-    {
-        type: "Proses Pembelajaran",
-        quesioners: [
-            {
-                question: "1. Dosen mengajar dengan metode yang menarik dan interaktif?",
-                value: "0"
-            },
-            {
-                question: "2. Dosen memberikan penjelasan yang mudah dipahami oleh mahasiswa?",
-                value: "0"
-            },
-            {
-                question: "3. Dosen memotivasi mahasiswa untuk aktif bertanya dan berdiskusi?",
-                value: "0"
-            },
-            {
-                question: "4. Dosen memanfaatkan teknologi (misalnya PowerPoint, video, platform e-learning) selama pembelajaran?",
-                value: "0"
-            },
-            {
-                question: "5. Dosen mampu mengelola waktu perkuliahan dengan baik?",
-                value: "0"
-            },
-        ]
-    },
-    {
-        type: "Evaluasi Pembelajaran",
-        quesioners: [
-            {
-                question: "1. Dosen memberikan penilaian berdasarkan indikator yang telah dijelaskan di awal perkuliahan?",
-                value: "0"
-            },
-            {
-                question: "2. Dosen memberikan umpan balik atas tugas atau ujian yang telah dikerjakan oleh mahasiswa?",
-                value: "0"
-            },
-            {
-                question: "3. Dosen menyelenggarakan evaluasi pembelajaran (tugas, kuis, atau ujian) sesuai jadwal?",
-                value: "0"
-            },
-            {
-                question: "4. Kriteria penilaian yang digunakan dosen jelas dan dapat dipahami.?",
-                value: "0"
-            },
-            {
-                question: "5. Dosen mengapresiasi hasil kerja mahasiswa dengan objektif?",
-                value: "0"
-            },
-        ]
-    }
-]
+// types
+import { ModuleQuesionerList, Quesioner } from "@/types/app"
 
 export default function MySimpleQuesioner() {
     const alert = useToast()
@@ -309,74 +217,5 @@ export default function MySimpleQuesioner() {
                 </div>
             </form>
         </section>
-    );
-}
-
-// COMPONENT VIEW MODULE QUESIONER
-
-interface Props {
-    index: number;
-    value: FieldArrayWithId<ModuleQuesionerList, "moduleQuesioners", "id" >;
-    control: Control<ModuleQuesionerList>;
-}
-
-export const ModuleQuesioner: React.FC<Props> = ({ index, value, control }) => {
-    useForm<ModuleQuesioner>({
-        defaultValues: value
-    });
-    return (
-        <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value={value.type}>
-                <AccordionTrigger className="font-bold">{value.type.toUpperCase()}</AccordionTrigger>
-                <AccordionContent className="space-y-3">
-                    {value.quesioners.map((_, idx) => (
-                        <div key={idx} className="border bg-[#FDFDFD] rounded-2xl px-8 py-3 flex gap-3 items-start">
-                            <Controller
-                                render={({ field }) => (
-                                    <input
-                                        type="text"
-                                        {...field}
-                                        disabled
-                                        className="question_quesioner bg-transparent font-bold rounded px-3 py-2 w-full"
-                                    />
-                                )}
-                                name={`moduleQuesioners.${index}.quesioners.${idx}.question`}
-                                control={control}
-                            />
-                            <Controller
-                                render={({ field }) => (
-                                    <div className="answer_quesioner w-48 py-3">
-                                        <RadioGroup onValueChange={value => field.onChange(value)} defaultValue="0">
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="5" id={`moduleQuesioners.${index}.quesioners.${idx}.value.sangat-setujuh`} />
-                                                <Label htmlFor={`moduleQuesioners.${index}.quesioners.${idx}.value.sangat-setujuh`}>Sangat Setujuh</Label>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="4" id={`moduleQuesioners.${index}.quesioners.${idx}.value.setujuh`} />
-                                                <Label htmlFor={`moduleQuesioners.${index}.quesioners.${idx}.value.setujuh`}>Setujuh</Label>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="3" id={`moduleQuesioners.${index}.quesioners.${idx}.value.netral`} />
-                                                <Label htmlFor={`moduleQuesioners.${index}.quesioners.${idx}.value.netral`}>Netral</Label>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="2" id={`moduleQuesioners.${index}.quesioners.${idx}.value.tidak-setujuh`} />
-                                                <Label htmlFor={`moduleQuesioners.${index}.quesioners.${idx}.value.tidak-setujuh`}>Tidak Setujuh</Label>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="1" id={`moduleQuesioners.${index}.quesioners.${idx}.value.sangat-tidak-setujuh`} />
-                                                <Label htmlFor={`moduleQuesioners.${index}.quesioners.${idx}.value.sangat-tidak-setujuh`}>Sangat Tidak Setujuh</Label>
-                                            </div>
-                                        </RadioGroup>
-                                    </div>
-                                )}
-                                name={`moduleQuesioners.${index}.quesioners.${idx}.value`}
-                                control={control}
-                            />
-                        </div>    
-                    ))}
-                </AccordionContent>
-            </AccordionItem>
-        </Accordion>
     );
 }

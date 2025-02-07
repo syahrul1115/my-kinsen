@@ -1,3 +1,18 @@
+
+export type Quesioner = {
+    question: string;
+    value: string;
+}
+
+export type ModuleQuesioners = {
+    type: string;
+    quesioners: Quesioner[]
+}
+
+export type ModuleQuesionerList = {
+    moduleQuesioners: ModuleQuesioners[]
+}
+
 export type Profile<TProfile, TUser> = {
     profile: TProfile;
     user: TUser;

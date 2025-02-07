@@ -54,7 +54,7 @@ export default function Profile() {
         <section className="p-8">
             <div className="flex flex-col md:flex-row md:items-start md:justify-start gap-8">
                 {/* CARD PROFILE USERS (MAHASISWA DAN DOSEN) */}
-                {queryGetProfileMahasiswa.data?.data.user.role === "mahasiswa" && (
+                {queryGetProfileMahasiswa.data?.data.user?.role === "mahasiswa" && (
                     <div className="card_profile bg-[#fdfdfd] rounded-2xl w-full md:max-w-[360px] p-8 flex flex-col gap-3">
                         <div className="profile_mahasiswa flex gap-3 items-start">
                             <Avatar className="h-16 w-16">
@@ -124,7 +124,7 @@ export default function Profile() {
                             </div>
                     </div>
                 )}
-                {queryGetProfileDosen.data?.data.user.role === "dosen" && (
+                {queryGetProfileDosen.data?.data.user?.role === "dosen" && (
                     <div className="card_profile bg-[#fdfdfd] rounded-2xl w-full md:max-w-[360px] p-8 flex flex-col gap-3">
                         <div className="profile_mahasiswa flex gap-3 items-start">
                             <Avatar className="h-16 w-16">
@@ -149,7 +149,7 @@ export default function Profile() {
                     </div>
                 )}
                 {/* CARD QUESIONER FOR USER MAHASISWA */}
-                {queryGetProfileMahasiswa.data?.data.user.role === "mahasiswa" && (
+                {queryGetProfileMahasiswa.data?.data.user?.role === "mahasiswa" && (
                     <div className="bg-[#fdfdfd] rounded-2xl p-8 flex flex-col gap-8 w-full">
                         <p className="text-xs md:text-base text-slate-600 font-bold">
                             Silakan melakukan Kuesioner Evaluasi Umpan Balik ( EUB )
@@ -188,7 +188,7 @@ export default function Profile() {
                     </div>
                 )}
                 {/* CARD DASHBOARD FOR USER DOSEN */}
-                {queryGetProfileDosen.data?.data.user.role === "dosen" && (
+                {queryGetProfileDosen.data?.data.user?.role === "dosen" && (
                     <div className="bg-[#fdfdfd] rounded-2xl p-8 flex flex-col gap-8 w-full">
                         <h1 className="text-2xl md:text-4xl font-bold">Kinerja Saya</h1>
                         <div className="flex items-center gap-3">
@@ -214,7 +214,7 @@ export default function Profile() {
                     </div>
                 )}
                 {/* CARD DASHBOARD FOR USER ADMIN */}
-                {!queryGetProfileMahasiswa.data?.data.user.role && !queryGetProfileDosen.data?.data.user.role && (
+                {!queryGetProfileMahasiswa.data?.data.user?.role && !queryGetProfileDosen.data?.data.user?.role && (
                     <div className="flex flex-col gap-8 w-full">
                         <div className="flex items-center gap-3">
                             <div className="bg-[#fdfdfd] rounded-2xl p-8 w-full">

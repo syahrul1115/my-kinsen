@@ -47,23 +47,23 @@ export default function ProfileListMahasiswa() {
                     className="md:max-w-sm"
                 />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                 {queryListUsers.data?.users?.map((user, idx) => (
                     <div key={idx} className="card_profile bg-[#fdfdfd] rounded-2xl w-full md:max-w-[360px] p-8 flex flex-col gap-3">
                         <div className="flex gap-3 items-start">
                             <Avatar className="border h-16 w-16">
                                 <AvatarImage src={user.image || ""} />
-                                <AvatarFallback>{user.name.slice(0, 2)}</AvatarFallback>
+                                <AvatarFallback className="font-bold">{user.name.slice(0, 2).toUpperCase()}</AvatarFallback>
                             </Avatar>
                             <div className="flex flex-col mt-3">
                                 <div className="field_description_mahasiswa bg-[#fdfdfd] rounded px-3 w-full flex gap-3 items-center">
                                     <div className="flex-1">
-                                        <p className="text-base text-slate-600 font-bold">{user.name}</p>
+                                        <p className="text-xl text-slate-600 font-bold">{user.name}</p>
                                     </div>
                                 </div>
                                 <div className="field_description_mahasiswa bg-[#fdfdfd] rounded px-3 w-full flex gap-3 items-center">
                                     <div className="flex-1">
-                                        <p className="text-base text-slate-400 font-bold">{user.email}</p>
+                                        <p className="text-xs text-slate-400 font-bold">{user.email}</p>
                                     </div>
                                 </div>
                             </div>

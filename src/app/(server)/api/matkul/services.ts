@@ -33,9 +33,42 @@ export const serviceListMatkuls = async (page: number, pageSize: number, search?
     const options: RequestInit = {
         method: 'GET'
     }
-
+    
     const response = await fetch("/api/matkul/all" + params, options)
     const result: ResultService<Paged<MatkulDto>> = await response.json()
+
+    return result;
+}
+
+export const serviceUpdateMatkul = async (
+    id: string,
+    request: {
+        name: string;
+        semester: string;
+        studyProgram: string;
+        dosenId: string;
+    }
+) => {
+    const options: RequestInit = {
+        method: 'PATCH'
+    }
+    options.body = JSON.stringify(request)
+
+    const response = await fetch("/api/matkul/" + id, options)
+    const result: ResultService<string> = await response.json()
+
+    return result;
+}
+
+export const serviceDeleteMatkul = async (
+    id: string
+) => {
+    const options: RequestInit = {
+        method: 'DELETE'
+    }
+
+    const response = await fetch("/api/matkul/" + id, options)
+    const result: ResultService<string> = await response.json()
 
     return result;
 }
