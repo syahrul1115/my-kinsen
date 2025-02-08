@@ -23,15 +23,15 @@ import { Input } from '@/components/ui/input'
 
 const formSchemaSignIn = z.object({
     email: z.string()
-        .min(2, {
+        .min(1, {
             message: "Email is not empty!",
         })
         .email({
             message: 'Email is not valid!'
         }),
     password: z.string()
-        .min(2, {
-            message: 'Password  is not empty!',
+        .min(8, {
+            message: 'Password must be minimal 8 characters!',
         }),
 })
 
@@ -44,8 +44,8 @@ export default function Login() {
     const formSignIn = useForm<z.infer<typeof formSchemaSignIn>>({
         resolver: zodResolver(formSchemaSignIn),
         defaultValues: {
-            email: '',
-            password: ''
+            email: "",
+            password: ""
         },
     })
 
@@ -108,17 +108,21 @@ export default function Login() {
                                     <FormItem>
                                         <FormLabel>Password</FormLabel>
                                         <FormControl>
-                                            <Input {...field} />
+                                            <Input type="password" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
                         </div>
-                        <Button type="submit" disabled={isPending}>{isPending ? "LOADING..." : "MASUK"}</Button>
+                        <Link href={"/forgot-password"} className='underline'>
+                            Lupa Password?
+                        </Link>
+                        <Button type="submit" disabled={isPending}>
+                            {isPending ? "LOADING..." : "MASUK"}
+                        </Button>
                         <p className='text-xs text-center'>
-                            Tidak punya akun? {" "}
-                            <Link href={"/register"} className='underline'>Buat Akun</Link>
+                            Tidak punya akun? <Link href={"/register"} className='underline'>Buat Akun</Link>
                         </p>
                     </div>
                 </form>
