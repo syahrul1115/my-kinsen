@@ -24,10 +24,10 @@ const formSchemaResetPassword = z.object({
         })
 })
 
-export default function ResetPassword() {
+function FormResetPassword() {
     const alert = useToast()
     const searchParams = useSearchParams()
-    const token = searchParams.get("token")
+    const token = searchParams.get('token')
 
     const formResetPassword = useForm<z.infer<typeof formSchemaResetPassword>>({
         resolver: zodResolver(formSchemaResetPassword),
@@ -68,29 +68,37 @@ export default function ResetPassword() {
     }
 
     return (
-        <section>
-            <Form {...formResetPassword}>
-                <form onSubmit={formResetPassword.handleSubmit(onSubmitResetPassword)}>
-                    <div className='bg-[#FDFDFD] space-y-8 grid p-8'>
-                        <div className='space-y-3'>
-                            <FormField
-                                control={formResetPassword.control}
-                                name="password"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Password</FormLabel>
-                                        <FormControl>
-                                            <Input type="password" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                        <Button type="submit">Reset Password</Button>
+        <Form {...formResetPassword}>
+            <form onSubmit={formResetPassword.handleSubmit(onSubmitResetPassword)}>
+                <div className='bg-[#FDFDFD] space-y-8 grid p-8'>
+                    <div className='space-y-3'>
+                        <FormField
+                            control={formResetPassword.control}
+                            name="password"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Password</FormLabel>
+                                    <FormControl>
+                                        <Input type="password" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </div>
-                </form>
-            </Form>
+                    <Button type="submit">Reset Password</Button>
+                </div>
+            </form>
+        </Form>
+    );
+}
+
+export default function ResetPassword() {
+    return (
+        <section>
+            <React.Suspense>
+                <FormResetPassword />
+            </React.Suspense>
         </section>
     );
 }
