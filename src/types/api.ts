@@ -106,6 +106,7 @@ export interface QuesionerEntity {
     id: string;
     processValue: string;
     purposeValue: string;
+    rangking: string;
     toName: string;
     toNbm: string;
     updatedAt: Timestamp;

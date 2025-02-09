@@ -15,7 +15,7 @@ export async function findTotalCountDosen() {
 export async function findRecentNewUsersMahasiswa() {
     const query = db.selectFrom('user')
 
-    return query.selectAll()
+    return await query.selectAll()
         .where((eb) =>
             eb.or([
                 eb('role', 'ilike', `%mahasiswa%`)
@@ -26,21 +26,44 @@ export async function findRecentNewUsersMahasiswa() {
         .execute();
 }
 
-export async function findPerformanceDosen() {
+export async function findPerformanceDosen(name: string) {
     const query = db.selectFrom('quesioner')
 
-    const quesioners = await query.select(['id', 'purposeValue', 'processValue', 'evaluationValue']).execute()
-    
-    let purpose: number = 0
-    let process = 0
-    let evaluation = 0
+    return await query.select(
+        [
+            'id',
+            'toName',
+            'toNbm',
+            'rangking',
+            'purposeValue',
+            'processValue',
+            'evaluationValue'
+        ]
+    )
+        .where((eb) =>
+            eb.or([
+                eb('toName', 'ilike', `%${name}%`)
+            ])
+        )
+        .orderBy('createdAt', 'desc')
+        .execute()
+}
 
-    for (let index = 0; index < quesioners.length; index++) {
-        const element = quesioners[index];
-        purpose = purpose + Number(element.purposeValue)
-        process = process + Number(element.processValue)
-        evaluation = evaluation + Number(element.evaluationValue)
-    }
+export async function findRangkingDosenList() {
+    const query = db.selectFrom('quesioner')
 
-    return { purpose, process, evaluation}
+    return await query.select(
+        [
+            'id',
+            'toName',
+            'toNbm',
+            'rangking',
+            'purposeValue',
+            'processValue',
+            'evaluationValue'
+        ]
+    )
+        .limit(5)
+        .orderBy('rangking', 'desc')
+        .execute();
 }

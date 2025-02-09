@@ -39,9 +39,24 @@ export type Dashboard = {
     };
     performance: {
         dosen: {
-            purpose: number,
-            process: number,
-            evaluation: number
+            id: string;
+            evaluationValue: string;
+            processValue: string;
+            purposeValue: string;
+            rangking: string;
+            toName: string;
+            toNbm: string;
+        } | null,
+        rangking: {
+            dosen: {
+                id: string;
+                evaluationValue: string;
+                processValue: string;
+                purposeValue: string;
+                rangking: string;
+                toName: string;
+                toNbm: string;
+            }[]
         }
     };
 }

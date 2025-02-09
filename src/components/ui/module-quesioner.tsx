@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react";
 import { Control, Controller, FieldArrayWithId, useForm } from "react-hook-form";
 
 // types
@@ -23,7 +24,11 @@ export const ModuleQuesioner: React.FC<Props> = ({ index, value, control }) => {
     return (
         <Accordion type="single" collapsible className="w-full">
             <AccordionItem value={value.type}>
-                <AccordionTrigger className="font-bold">{value.type.toUpperCase()}</AccordionTrigger>
+                <AccordionTrigger className="font-bold">
+                    <h1>
+                        {value.type.toUpperCase()} <span className="text-red-600">*</span>
+                    </h1>
+                </AccordionTrigger>
                 <AccordionContent className="space-y-3">
                     {value.quesioners.map((_, idx) => (
                         <div key={idx} className="border bg-[#FDFDFD] rounded-2xl px-8 py-3 flex flex-col md:flex-row gap-3 items-start">

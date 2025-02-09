@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 
 // utils
 import { auth } from "@/utils/auth";
-import { findTotalCountMahasiswa, findTotalCountDosen, findRecentNewUsersMahasiswa, findPerformanceDosen } from "../repository";
+import { findTotalCountMahasiswa, findTotalCountDosen, findRecentNewUsersMahasiswa, findPerformanceDosen, findRangkingDosenList } from "../repository";
 
 // repositories
 
@@ -26,6 +26,7 @@ export async function GET() {
         const totalCountMahasiswaExists = await findTotalCountMahasiswa()
         const totalCountDosenExists = await findTotalCountDosen()
         const recentNewUserExists = await findRecentNewUsersMahasiswa()
+        const rangkingDosenListExists = await findRangkingDosenList()
         
         responseAPI = {
             data: {
@@ -37,11 +38,10 @@ export async function GET() {
                     newUsers: recentNewUserExists
                 },
                 performance: {
-                    dosen: {
-                        purpose: 0,
-                        process: 0,
-                        evaluation: 0
-                    }
+                    dosen: null,
+                    rangking: {
+                        dosen: rangkingDosenListExists
+                    } 
                 }
             },
             status: 200
@@ -49,7 +49,7 @@ export async function GET() {
     }
     
     if (session.user.role === "dosen") {
-        const totalPerformanceExists = await findPerformanceDosen()
+        const totalPerformanceExists = await findPerformanceDosen(session.user.name)
 
         responseAPI = {
             data: {
@@ -61,7 +61,10 @@ export async function GET() {
                     newUsers: []
                 },
                 performance: {
-                    dosen: totalPerformanceExists
+                    dosen: totalPerformanceExists,
+                    rangking: {
+                        dosen: []
+                    }
                 }
             },
             status: 200

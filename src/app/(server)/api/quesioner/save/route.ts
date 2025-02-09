@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
         return Response.json({ data: "Mahasiswa Name is not empty!", status: 400 },
             {
                 status: 400,
-                statusText: 'unauthenticated'
+                statusText: 'bad_request'
             }
         )
     }
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
         return Response.json({ data: "Mahasiswa Nim is not empty!", status: 400 },
             {
                 status: 400,
-                statusText: 'unauthenticated'
+                statusText: 'bad_request'
             }
         )
     }
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
         return Response.json({ data: "Dosen Name is not empty!", status: 400 },
             {
                 status: 400,
-                statusText: 'unauthenticated'
+                statusText: 'bad_request'
             }
         )
     }
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
         return Response.json({ data: "Dosen NBM is not empty!", status: 400 },
             {
                 status: 400,
-                statusText: 'unauthenticated'
+                statusText: 'bad_request'
             }
         )
     }
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         return Response.json({ data: "Purpose Value is not empty!", status: 400 },
             {
                 status: 400,
-                statusText: 'unauthenticated'
+                statusText: 'bad_request'
             }
         )
     }
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
         return Response.json({ data: "Process Value is not empty!", status: 400 },
             {
                 status: 400,
-                statusText: 'unauthenticated'
+                statusText: 'bad_request'
             }
         )
     }
@@ -75,7 +75,15 @@ export async function POST(request: NextRequest) {
         return Response.json({ data: "Evaluation Value is not empty!", status: 400 },
             {
                 status: 400,
-                statusText: 'unauthenticated'
+                statusText: 'bad_request'
+            }
+        )
+    }
+    if (!requestBodyJSON.rangking) {
+        return Response.json({ data: "Rangking is not empty!", status: 400 },
+            {
+                status: 400,
+                statusText: 'bad_request'
             }
         )
     }
@@ -91,6 +99,7 @@ export async function POST(request: NextRequest) {
         evaluationValue: requestBodyJSON.evaluationValue,
         descriptionLiked: requestBodyJSON.descriptionLiked,
         descriptionSuggestion: requestBodyJSON.descriptionSuggestion,
+        rangking: requestBodyJSON.rangking,
         createdAt: new Date(),
         updatedAt: new Date()
     }

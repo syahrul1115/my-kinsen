@@ -3,10 +3,10 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import { useFieldArray, useForm } from "react-hook-form"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 
 // services
-import { serviceCreateQuesioner, serviceListQuesioners } from "@/app/(server)/api/quesioner/services"
+import { serviceCreateQuesioner } from "@/app/(server)/api/quesioner/services"
 import { serviceGetProfileMahasiswa } from "@/app/(server)/api/mahasiswa/services"
 import { serviceListMatkuls } from "@/app/(server)/api/matkul/services"
 
@@ -25,12 +25,11 @@ import { useToast } from "@/hooks/use-toast"
 import { initModuleQuesionerList } from "@/utils"
 
 // types
-import { ModuleQuesionerList, Quesioner } from "@/types/app"
+import { ModuleQuesionerList } from "@/types/app"
 
 export default function MySimpleQuesioner() {
     const alert = useToast()
     const router = useRouter()
-    const queryClient = useQueryClient()
 
     // STATE DATA PAGINATION
     const [page] = React.useState<number>(1)
@@ -41,17 +40,20 @@ export default function MySimpleQuesioner() {
     const [dosenName, setDosenName] = React.useState<string>("")
     const [dosenNbm, setDosenNbm] = React.useState<string>("")
     const [matkul, setMatkul] = React.useState<string>("")
-    const [purpose, setPurpose] = React.useState<string>("0")
-    const [process, setProcess] = React.useState<string>("0")
-    const [evaluation, setEvaluation] = React.useState<string>("0")
+    const [purpose, setPurpose] = React.useState<string>("")
+    const [process, setProcess] = React.useState<string>("")
+    const [evaluation, setEvaluation] = React.useState<string>("")
+    const [descriptionLiked, setDescriptionLiked] = React.useState<string>("")
+    const [descriptionSuggestion, setDescriptionSuggestion] = React.useState<string>("")
 
 
     const queryGetProfile = useQuery({queryKey: ["get-profile"], queryFn: () => serviceGetProfileMahasiswa()})
     const queryListMatkuls = useQuery({queryKey: ["list-matkuls"], queryFn: () => serviceListMatkuls(page, pageSize, search)})
 
-    const queryListQuesioners = useQuery({ queryKey: ["list-quesioners"], queryFn: () => serviceListQuesioners(page, pageSize, queryGetProfile.data?.data.profile.nim || "") })
     const mutationQuesioner = useMutation({ mutationKey: ["create-new-quesioner"], mutationFn: serviceCreateQuesioner })
 
+    React.useEffect(() => {queryListMatkuls.refetch()}, [search, queryListMatkuls])
+    
     // STATE DATA TO CONTROL LIST MODULE IN FORM
     const { control, handleSubmit } = useForm<ModuleQuesionerList>({
         defaultValues: {
@@ -63,47 +65,58 @@ export default function MySimpleQuesioner() {
         name: "moduleQuesioners"
     })
 
-    // GET DATA AMOUNT NILAI PER MODULE QUESIONER
-    const getQuesionerAmountPurpose= (data: Quesioner[]) => {
-        let newAmountRencana = 0
-        for (let index = 0; index < data.length; index++) {
-            const element = data[index];
-            newAmountRencana += Number(element.value)
-        }
-        setPurpose(newAmountRencana.toString())
-    }
-    const getQuesionerAmountProcess = (data: Quesioner[]) => {
-        let newAmountProses = 0
-        for (let index = 0; index < data.length; index++) {
-            const element = data[index];
-            newAmountProses += Number(element.value)
-        }
-        setProcess(newAmountProses.toString())
-    }
-    const getQuesionerAmountEvaluation = (data: Quesioner[]) => {
-        let newAmountEvaluasi = 0
-        for (let index = 0; index < data.length; index++) {
-            const element = data[index];
-            newAmountEvaluasi += Number(element.value)
-        }
-        setEvaluation(newAmountEvaluasi.toString())
-    }
-
-    // METHOD TO SUBMIT DATA
-    const submit = async (data: ModuleQuesionerList) => {
+    const getDataAllAmount = React.useCallback((data: ModuleQuesionerList) => {
         for (let index = 0; index < data.moduleQuesioners.length; index++) {
             const element = data.moduleQuesioners[index];
             if (element.type === "Rencana Pembelajaran") {
-                getQuesionerAmountPurpose(element.quesioners)
+                let newAmountRencana = 0
+                for (let index = 0; index < element.quesioners.length; index++) {
+                    const elementQ = element.quesioners[index];
+                    newAmountRencana += Number(elementQ.value)
+                }
+                setPurpose(Number(newAmountRencana / 20).toString())
             }
             if (element.type === "Proses Pembelajaran") {
-                getQuesionerAmountProcess(element.quesioners)
+                let newAmountProses = 0
+                for (let index = 0; index < element.quesioners.length; index++) {
+                    const elementQ = element.quesioners[index];
+                    newAmountProses += Number(elementQ.value)
+                }
+                setProcess(Number(newAmountProses / 25).toString())
             }
             if (element.type === "Evaluasi Pembelajaran") {
-                getQuesionerAmountEvaluation(element.quesioners)
+                let newAmountEvaluasi = 0
+                for (let index = 0; index < element.quesioners.length; index++) {
+                    const elementQ = element.quesioners[index];
+                    newAmountEvaluasi += Number(elementQ.value)
+                }
+                setEvaluation(Number(newAmountEvaluasi / 25).toString())
             }
         }
+    }, [])
 
+    // METHOD TO SUBMIT DATA
+    const submit = async (data: ModuleQuesionerList) => {
+        getDataAllAmount(data)
+
+        if (!dosenName || !matkul || !purpose || !process || !evaluation) {
+            alert.toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: "Terdapat kolom yang masih kosong!",
+            })
+            return;
+        }
+        
+        if (purpose === "0" || process === "0" || evaluation === "0") {
+            alert.toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: "Terjadi kesalahan. Mohon coba kirim kembali lagi!",
+            })
+            return;
+        }
+        
         const request = {
             fromName: queryGetProfile.data?.data.user.name ?? "",
             fromNim: queryGetProfile.data?.data.profile.nim ?? "",
@@ -112,14 +125,14 @@ export default function MySimpleQuesioner() {
             purposeValue: purpose,
             processValue: process,
             evaluationValue: evaluation,
-            descriptionLiked: "",
-            descriptionSuggestion: "",
+            descriptionLiked: descriptionLiked,
+            descriptionSuggestion: descriptionSuggestion,
+            rangking: Number((Number(purpose) + Number(process) + Number(evaluation)) / 3).toString()
         }
 
         mutationQuesioner.mutate(request, {
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: ["list-quesioners"]})
-                router.push("/app/my-quesioner")
+                router.push("/app")
                 alert.toast({
                     variant: 'default',
                     title: 'Success',
@@ -134,7 +147,6 @@ export default function MySimpleQuesioner() {
                 })
             }
         })
-
     }
 
     // LOADING VIEW ELEMENTS
@@ -153,7 +165,9 @@ export default function MySimpleQuesioner() {
                 <div className="flex flex-col gap-16">
                     <div className="flex flex-col md:flex-row items-start md:justify-center justify-between gap-8">
                         <div className="grid gap-3 w-full">
-                            <Label htmlFor="matkul">Mata Kuliah</Label>
+                            <Label htmlFor="matkul">
+                                Mata Kuliah <span className="text-red-600">*</span>
+                            </Label>
                             <Select
                                 onValueChange={value => {
                                     setMatkul(value);
@@ -169,18 +183,14 @@ export default function MySimpleQuesioner() {
                                 <SelectTrigger>
                                     <SelectValue placeholder="Pilih Mata Kuliah" />
                                 </SelectTrigger>
-                                <SelectContent className="max-w-xs">
-                                    <div className="w-full md:w-[374px]">
-                                        <Input
-                                            placeholder="CARI MATA KULIAH"
-                                            value={search}
-                                            onChange={input => setSearch(input.target.value)}
-                                        />
-                                    </div>
+                                <SelectContent>
+                                    <Input
+                                        placeholder="CARI MATA KULIAH"
+                                        value={search}
+                                        onChange={input => setSearch(input.target.value)}
+                                    />
                                     {queryListMatkuls.data?.data.items.filter(i =>
-                                        queryGetProfile.data?.data.profile.studyProgram === i.studyProgram &&
-                                        queryGetProfile.data?.data.profile.semester === i.semester &&
-                                        queryListQuesioners.data?.data.items.find(q => q.toName === i.teacher.name)?.toName !== i.teacher.name
+                                        queryGetProfile.data?.data.profile.semester === i.semester
                                     ).map(i =>
                                         <SelectItem id="matkul" key={i.id} value={i.name}>
                                             {i.name.toUpperCase()}
@@ -190,7 +200,9 @@ export default function MySimpleQuesioner() {
                             </Select>
                         </div>
                         <div className="grid gap-3 w-full">
-                            <Label htmlFor="pengajar">Pengajar</Label>
+                            <Label htmlFor="pengajar">
+                                Pengajar <span className="text-red-600">*</span>
+                            </Label>
                             <Input
                                 placeholder="Pengajar"
                                 defaultValue={dosenName}
@@ -211,11 +223,21 @@ export default function MySimpleQuesioner() {
                     </ul>
                     <div className="grid w-full gap-1.5">
                         <Label htmlFor="descriptionLiked">Apa yang Anda menyukai cara dosen mengajar?</Label>
-                        <Textarea placeholder="Type your message here." id="descriptionLiked" />
+                        <Textarea
+                            placeholder="Tulis disini..."
+                            id="descriptionLiked"
+                            value={descriptionLiked}
+                            onChange={input => setDescriptionLiked(input.target.value)}
+                        />
                     </div>
                     <div className="grid w-full gap-1.5">
                         <Label htmlFor="descriptionSuggestion">Apa yang perlu ditingkatkan dari kinerja dosen?</Label>
-                        <Textarea placeholder="Type your message here." id="descriptionSuggestion" />
+                        <Textarea
+                            placeholder="Tulis disini..."
+                            id="descriptionSuggestion"
+                            value={descriptionSuggestion}
+                            onChange={input => setDescriptionSuggestion(input.target.value)}
+                        />
                     </div>
                     <Button type="submit" disabled={mutationQuesioner.isPending} className="my-10 w-full font-bold">
                         {mutationQuesioner.isPending ? "LOADING..." : "KIRIM KUISIONER"}

@@ -37,12 +37,6 @@ const items = [
         role: ["mahasiswa", "dosen", "admin"]
     },
     {
-        title: "My Quesioner",
-        url: "/app/my-quesioner",
-        icon: Award,
-        role: ["mahasiswa", "dosen"]
-    },
-    {
         title: "Profile Dosen",
         url: "/app/profile-dosen",
         icon: Award,

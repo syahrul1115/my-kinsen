@@ -178,7 +178,7 @@ export default function Profile() {
                                 <AlertDialogFooter>
                                     <AlertDialogCancel>Batal</AlertDialogCancel>
                                     <AlertDialogAction onClick={() => {
-                                        router.push("/app/my-quesioner/kuisioner-penilaian-kinerja-dosen-dalam-perkuliahan")
+                                        router.push("/app/quesioner/kuisioner-penilaian-kinerja-dosen-dalam-perkuliahan")
                                     }}>
                                         Terima dan Selanjutnya
                                     </AlertDialogAction>
@@ -195,19 +195,19 @@ export default function Profile() {
                             <div>
                                 <span className="text-base md:text-2xl text-black/60">Rencana</span>
                                 <h1 className="text-2xl md:text-4xl font-bold">
-                                    {Number(queryGetDashboard.data?.data.performance.dosen.purpose)}
+                                    {Number(queryGetDashboard.data?.data.performance.dosen?.purposeValue ?? 0)}
                                 </h1>
                             </div>
                             <div>
                                 <span className="text-base md:text-2xl text-black/60">Process</span>
                                 <h1 className="text-2xl md:text-4xl font-bold">
-                                    {Number(queryGetDashboard.data?.data.performance.dosen.process)}
+                                    {Number(queryGetDashboard.data?.data.performance.dosen?.processValue ?? 0)}
                                 </h1>
                             </div>
                             <div>
                                 <span className="text-base md:text-2xl text-black/60">Evaluasi</span>
                                 <h1 className="text-2xl md:text-4xl font-bold">
-                                    {Number(queryGetDashboard.data?.data.performance.dosen.evaluation)}
+                                    {Number(queryGetDashboard.data?.data.performance.dosen?.evaluationValue ?? 0)}
                                 </h1>
                             </div>
                         </div>
@@ -226,39 +226,65 @@ export default function Profile() {
                                 <span className="text-2xl md:text-6xl text-black font-bold">{Number(queryGetDashboard.data?.data.totalCount.dosen.count)}</span>
                             </div>
                         </div>
-                        <div>
-                            <Table>
-                                <TableCaption>A list of your recent new users mahasiswa.</TableCaption>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-[100px]">Profil</TableHead>
-                                        <TableHead>Nama</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Bergabung</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {queryGetDashboard.data?.data.recent.newUsers.map((user, idx) => (
-                                        <TableRow key={idx}>
-                                            <TableCell className="font-medium">
-                                                <Avatar>
-                                                    <AvatarImage src={user.image ?? ""} alt={`avatar-user-${user.name}`} />
-                                                    <AvatarFallback>{user.name.slice(0, 2)}</AvatarFallback>
-                                                </Avatar>
-                                            </TableCell>
-                                            <TableCell>
-                                                {user.name}
-                                            </TableCell>
-                                            <TableCell>
-                                                {user.banned ? "Aktif" : "Banned"}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                {new Date(user.createdAt).toLocaleDateString('id-ID', { dateStyle: "full" })}
-                                            </TableCell>
+                        <div className="flex flex-col md:flex-row gap-8">
+                            <div className="bg-[#fdfdfd] rounded-2xl p-8 w-full">
+                                <Table>
+                                    <TableCaption>A list of your recent new users mahasiswa.</TableCaption>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="w-[100px]">Profil</TableHead>
+                                            <TableHead>Nama</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead className="text-right">Bergabung</TableHead>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {queryGetDashboard.data?.data.recent.newUsers.map((user, idx) => (
+                                            <TableRow key={idx}>
+                                                <TableCell className="font-medium">
+                                                    <Avatar>
+                                                        <AvatarImage src={user.image ?? ""} alt={`avatar-user-${user.name}`} />
+                                                        <AvatarFallback className="font-bold">
+                                                            {user.name.slice(0, 2).toUpperCase()}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                </TableCell>
+                                                <TableCell>
+                                                    {user.name}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {user.banned ? "Aktif" : "Banned"}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    {new Date(user.createdAt).toLocaleDateString('id-ID', { dateStyle: "full" })}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div> 
+                            <div className="bg-[#fdfdfd] rounded-2xl p-8 w-full md:max-w-sm">
+                                {queryGetDashboard.data?.data.performance.rangking.dosen.length ? 
+                                    queryGetDashboard.data?.data.performance.rangking.dosen.map((user, idx) => (
+                                        <div key={idx} className="py-3 flex items-center gap-3 w-full border-b">
+                                            <Avatar>
+                                                <AvatarImage src={""} alt={`avatar-user-${user.toName}`} />
+                                                <AvatarFallback className="font-bold">
+                                                    {user.toName.slice(0, 2).toUpperCase()}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className="text-base capitalize">
+                                                <h3>{user.toName}</h3>
+                                            </div>
+                                            <div className="ml-auto text-base capitalize font-bold">
+                                                <h1>{user.rangking}</h1>
+                                            </div>
+                                        </div>
+                                    ))
+                                    :
+                                    <h3 className="text-center">Daftar Rangking Teratas dari Dosen.</h3>
+                                }
+                            </div>
                         </div>
                     </div>
                 )}
