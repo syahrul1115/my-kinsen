@@ -149,8 +149,12 @@ export default function AppSidebar({ children, authenticated }: Props) {
                                         <DropdownMenuSubTrigger>Settings</DropdownMenuSubTrigger>
                                         <DropdownMenuPortal>
                                             <DropdownMenuSubContent>
-                                                <DropdownMenuItem>Email</DropdownMenuItem>
-                                                <DropdownMenuItem>Password</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => router.push("/app/settings/account/email")}>
+                                                    Email
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => router.push("/app/settings/account/password")}>
+                                                    Password
+                                                </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem>More...</DropdownMenuItem>
                                             </DropdownMenuSubContent>

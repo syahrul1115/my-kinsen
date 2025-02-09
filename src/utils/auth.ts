@@ -12,6 +12,16 @@ export const auth = betterAuth({
         type: "postgres" // "sqlite", "mysql", "postgres" or "mssql"
     },
     user: {
+        changeEmail: {
+            enabled: true,
+            sendChangeEmailVerification: async ({ user, url}) => {
+                await sendMail({
+                    to: user.email, // verification email must be sent to the current user email to approve the change
+                    subject: 'Approve email change',
+                    text: `Click the link to approve the change: ${url}`
+                })
+            }
+        },
         additionalFields: {
             role: {
                 type: "string",
