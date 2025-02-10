@@ -136,7 +136,7 @@ export default function Profile() {
                             <div className="flex flex-col mt-3">
                                 <div className="field_description_mahasiswa bg-[#fdfdfd] rounded px-3 w-full flex gap-3 items-center">
                                     <div className="flex-1">
-                                        <p className="text-base md:text-2xl text-slate-600 font-bold">{queryGetProfileDosen.data?.data.user.name}</p>
+                                        <p className="text-slate-600 font-bold">{queryGetProfileDosen.data?.data.user.name}</p>
                                     </div>
                                 </div>
                                 <div className="field_description_mahasiswa bg-[#fdfdfd] rounded px-3 w-full flex gap-3 items-center">
@@ -190,22 +190,25 @@ export default function Profile() {
                 {/* CARD DASHBOARD FOR USER DOSEN */}
                 {queryGetProfileDosen.data?.data.user?.role === "dosen" && (
                     <div className="bg-[#fdfdfd] rounded-2xl p-8 flex flex-col gap-8 w-full">
-                        <h1 className="text-2xl md:text-4xl font-bold">Kinerja Saya</h1>
+                        <div className="flex items-center justify-between">
+                            <h1 className="text-xl md:text-2xl font-bold">Kinerja Saya</h1>
+                            <p>{Number(queryGetDashboard.data?.data.performance.dosen?.rangking ?? 0) > 1 ? "Peringkat 1" : ""}</p>
+                        </div>
                         <div className="flex items-center gap-3">
                             <div>
-                                <span className="text-base md:text-2xl text-black/60">Rencana</span>
+                                <span className="text-base md:text-xl text-black/60">Rencana</span>
                                 <h1 className="text-2xl md:text-4xl font-bold">
                                     {Number(queryGetDashboard.data?.data.performance.dosen?.purposeValue ?? 0)}
                                 </h1>
                             </div>
                             <div>
-                                <span className="text-base md:text-2xl text-black/60">Process</span>
+                                <span className="text-base md:text-xl text-black/60">Process</span>
                                 <h1 className="text-2xl md:text-4xl font-bold">
                                     {Number(queryGetDashboard.data?.data.performance.dosen?.processValue ?? 0)}
                                 </h1>
                             </div>
                             <div>
-                                <span className="text-base md:text-2xl text-black/60">Evaluasi</span>
+                                <span className="text-base md:text-xl text-black/60">Evaluasi</span>
                                 <h1 className="text-2xl md:text-4xl font-bold">
                                     {Number(queryGetDashboard.data?.data.performance.dosen?.evaluationValue ?? 0)}
                                 </h1>

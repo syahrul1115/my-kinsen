@@ -29,7 +29,7 @@ export async function findRecentNewUsersMahasiswa() {
 export async function findPerformanceDosen(name: string) {
     const query = db.selectFrom('quesioner')
 
-    return await query.select(
+    const dosenListExists = await query.select(
         [
             'id',
             'toName',
@@ -47,6 +47,35 @@ export async function findPerformanceDosen(name: string) {
         )
         .orderBy('createdAt', 'desc')
         .execute()
+    
+    let evaluationValue = 0
+    let processValue = 0
+    let purposeValue = 0
+    let rangking = 0
+    let toName = ""
+    let toNbm = ""
+
+    for (let index = 0; index < dosenListExists.length; index++) {
+        const exist = dosenListExists[index];
+
+        purposeValue = purposeValue + Number(exist.purposeValue)
+        processValue = processValue + Number(exist.processValue)
+        evaluationValue = evaluationValue + Number(exist.evaluationValue)
+        rangking = rangking + Number(exist.rangking)
+        toName = exist.toName
+        toNbm = exist.toNbm
+    }
+
+    const result = {
+        evaluationValue: evaluationValue.toString(),
+        processValue: processValue.toString(),
+        purposeValue: purposeValue.toString(),
+        rangking: rangking.toString(),
+        toName: toName,
+        toNbm: toNbm
+    }
+
+    return result;
 }
 
 export async function findRangkingDosenList() {

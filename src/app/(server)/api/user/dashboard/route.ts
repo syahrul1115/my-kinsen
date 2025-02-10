@@ -2,9 +2,8 @@ import { headers } from "next/headers";
 
 // utils
 import { auth } from "@/utils/auth";
-import { findTotalCountMahasiswa, findTotalCountDosen, findRecentNewUsersMahasiswa, findPerformanceDosen, findRangkingDosenList } from "../repository";
 
-// repositories
+import { findTotalCountMahasiswa, findTotalCountDosen, findRecentNewUsersMahasiswa, findPerformanceDosen, findRangkingDosenList } from "../repository";
 
 export async function GET() {
     // CHECK SESSION USER LOGIN

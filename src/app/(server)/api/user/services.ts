@@ -39,7 +39,6 @@ export type Dashboard = {
     };
     performance: {
         dosen: {
-            id: string;
             evaluationValue: string;
             processValue: string;
             purposeValue: string;
