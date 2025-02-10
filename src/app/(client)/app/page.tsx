@@ -252,14 +252,14 @@ export default function Profile() {
                                                         </AvatarFallback>
                                                     </Avatar>
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className="capitalize">
                                                     {user.name}
                                                 </TableCell>
                                                 <TableCell>
-                                                    {user.banned ? "Aktif" : "Banned"}
+                                                    {user.banned ? "Banned" : "Aktif"}
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    {new Date(user.createdAt).toLocaleDateString('id-ID', { dateStyle: "full" })}
+                                                    {new Date(user.createdAt).toLocaleString('id-ID', { dateStyle: "full", timeStyle: "short" })}
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -267,6 +267,13 @@ export default function Profile() {
                                 </Table>
                             </div> 
                             <div className="bg-[#fdfdfd] rounded-2xl p-8 w-full md:max-w-sm">
+                                <div className="mb-8 flex flex-col gap-1">
+                                    <h3>Peringkat teratas Dosen</h3>
+                                    <p className="text-black/60 text-xs">
+                                        Selamat <strong>{queryGetDashboard.data?.data.performance.rangking.dosen.at(0)?.name}</strong>,
+                                        saat ini mendapat peringkat teratas.
+                                    </p>
+                                </div>
                                 {queryGetDashboard.data?.data.performance.rangking.dosen.length ? 
                                     queryGetDashboard.data?.data.performance.rangking.dosen.map((user, idx) => (
                                         <div key={idx} className="py-3 flex items-center gap-3 w-full border-b">
@@ -276,10 +283,10 @@ export default function Profile() {
                                                     {user.name.slice(0, 2).toUpperCase()}
                                                 </AvatarFallback>
                                             </Avatar>
-                                            <div className="text-base capitalize">
+                                            <div className="text-[10px] capitalize">
                                                 <h3>{user.name}</h3>
                                             </div>
-                                            <div className="ml-auto text-base capitalize font-bold">
+                                            <div className="ml-auto text-xs capitalize font-bold">
                                                 <h1>{user.rangking}</h1>
                                             </div>
                                         </div>
