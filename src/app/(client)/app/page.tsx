@@ -271,13 +271,13 @@ export default function Profile() {
                                     queryGetDashboard.data?.data.performance.rangking.dosen.map((user, idx) => (
                                         <div key={idx} className="py-3 flex items-center gap-3 w-full border-b">
                                             <Avatar>
-                                                <AvatarImage src={""} alt={`avatar-user-${user.toName}`} />
+                                                <AvatarImage src={""} alt={`avatar-user-${user.name}`} />
                                                 <AvatarFallback className="font-bold">
-                                                    {user.toName.slice(0, 2).toUpperCase()}
+                                                    {user.name.slice(0, 2).toUpperCase()}
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div className="text-base capitalize">
-                                                <h3>{user.toName}</h3>
+                                                <h3>{user.name}</h3>
                                             </div>
                                             <div className="ml-auto text-base capitalize font-bold">
                                                 <h1>{user.rangking}</h1>

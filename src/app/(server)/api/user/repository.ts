@@ -81,7 +81,7 @@ export async function findPerformanceDosen(name: string) {
 export async function findRangkingDosenList() {
     const query = db.selectFrom('quesioner')
 
-    return await query.select(
+    const rangkingDosenListExists = await query.select(
         [
             'id',
             'toName',
@@ -95,4 +95,17 @@ export async function findRangkingDosenList() {
         .limit(5)
         .orderBy('rangking', 'desc')
         .execute();
+
+    const newResultList = []
+
+    for (let index = 0; index < rangkingDosenListExists.length; index++) {
+        const elementExist = rangkingDosenListExists[index];
+        newResultList.push({
+            id: elementExist.id,
+            name: elementExist.toName,
+            rangking: `Peringkat ${index + 1}`
+        })
+    }
+
+    return newResultList;
 }
