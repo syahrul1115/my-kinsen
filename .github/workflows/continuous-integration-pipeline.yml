@@ -33,7 +33,7 @@ jobs:
 
     - name: Install dependencies
       run: pnpm install
-      run: pnpm build --if-present
+      run: pnpm run build --if-present
 
   # docker-image:
 
