@@ -67,30 +67,53 @@ To get started with the Performance of Dosen web application project, follow the
 
 #### Instal All Module
 
-Note: Don't forget to install pnpm, becouse this project using pnpm for build tool.
+Note: Don't forget to install nvm, becouse this project using node and npm for build tool.
 
 ```
-pnpm install
+npm install --legacy-peer-deps
+```
+
+#### Generate Table
+
+Note: Don't forget to generate authentication tables.
+
+```
+npm better:auth:generate
 ```
 
 #### Migrate Table
 
-Note: Don't forget to migrate all tables.
+Note:
+
+Don't forget to migrate all authentication tables.
+For feature tables using with migrate manualy using sql command in tool management Adminer.
 
 ```
-pnpm better:auth:migrate
+npm better:auth:migrate
 ```
 
-#### Run Dev (run development server)
+#### Run Dev for (run development server) 👍
 
 ```
-pnpm dev
+npm run dev
 ```
 
-#### Run Build
+#### Run Build for (run with production server) 👍
 
 ```
-pnpm build
+npm run build
+```
+
+#### Run Start (don't forget to run build) 👍
+
+```
+npm run start
+```
+
+#### Run with Docker (include with database postgre SQL and Adminer as Management Tool) 👍
+
+```
+docker compose --file=docker/staging/compose.yml up -d
 ```
 
 ## Acknowledgments
