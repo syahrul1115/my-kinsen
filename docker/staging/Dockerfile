@@ -23,7 +23,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # This will do the trick, use the corresponding env file for each environment.
-COPY .env.staging.sample .env.production
+COPY .env.staging.sample .env
 RUN npm run build
 
 # 3. Production image, copy all the files and run next
