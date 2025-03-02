@@ -113,7 +113,7 @@ npm run start
 #### Run with Docker (include with database postgre SQL and Adminer as Management Tool) 👍
 
 ```
-docker compose --file=docker/staging/compose.yml up -d
+docker compose --file=docker/staging/compose.yml --env-file=.env up -d
 ```
 
 ## Acknowledgments

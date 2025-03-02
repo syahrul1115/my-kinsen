@@ -20,37 +20,50 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ENV NEXT_TELEMETRY_DISABLED=1
 
-# This will do the trick, use the corresponding env file for each environment.
-COPY .env.staging.sample .env
+# Environment variables must be present at build time
+# https://github.com/vercel/next.js/discussions/14030
+ARG BETTER_AUTH_SECRET
+ARG BETTER_AUTH_URL
+ARG MAILTRAP_CLIENT_TOKEN
+ARG DATABASE_URL
+ARG NEXT_TELEMETRY_DISABLED=1
+
+ENV BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+ENV BETTER_AUTH_URL=${BETTER_AUTH_URL}
+ENV MAILTRAP_CLIENT_TOKEN=${MAILTRAP_CLIENT_TOKEN}
+ENV DATABASE_URL=${DATABASE_URL}
+ENV NEXT_TELEMETRY_DISABLED=${NEXT_TELEMETRY_DISABLED}
+
 RUN npm run build
 
-# 3. Production image, copy all the files and run next
-FROM base AS runner
+CMD npm run start
 
-WORKDIR /app
+# # 3. Production image, copy all the files and run next
+# FROM base AS runner
 
-ENV NODE_ENV=production \
-    NEXT_TELEMETRY_DISABLED=1 \
-    HOSTNAME="0.0.0.0"
+# WORKDIR /app
 
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
+# ENV NODE_ENV=production \
+#     NEXT_TELEMETRY_DISABLED=1 \
+#     HOSTNAME="0.0.0.0"
 
-COPY --from=builder /app/public ./public
+# RUN addgroup -g 1001 -S nodejs
+# RUN adduser -S nextjs -u 1001
 
-RUN mkdir .next
+# COPY --from=builder /app/public ./public
 
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# RUN mkdir .next
 
-USER nextjs
+# # Automatically leverage output traces to reduce image size
+# # https://nextjs.org/docs/advanced-features/output-file-tracing
+# COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+# COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-EXPOSE 3000
+# USER nextjs
 
-ENV PORT=3000
+# EXPOSE 3000
 
-CMD  ["node", "server.js"]
+# ENV PORT=3000
+
+# CMD  ["node", "server.js"]

@@ -3,13 +3,17 @@ services:
     build:
       context: ../../
       dockerfile: docker/staging/Dockerfile
+      args:
+        BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+        BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+        MAILTRAP_CLIENT_TOKEN: ${MAILTRAP_CLIENT_TOKEN}
+        DATABASE_URL: ${DATABASE_URL}
     container_name: web-my-kinsen
     restart: always
-    environment:
-      NODE_ENV: production
-      HOSTNAME: "0.0.0.0"
     ports:
       - 3002:3000
+    networks:
+      - web_my_kinsen
     depends_on:
       - adminer
 
@@ -23,6 +27,8 @@ services:
       POSTGRES_DB: my-kinsen
     ports:
       - 5432:5432
+    networks:
+      - web_my_kinsen
 
   adminer:
     image: adminer
@@ -30,5 +36,12 @@ services:
     restart: always
     ports:
       - 8080:8080
+    networks:
+      - web_my_kinsen
     depends_on:
       - db
+
+networks:
+  web_my_kinsen:
+    # Specify driver options
+    driver: bridge
