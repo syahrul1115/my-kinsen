@@ -31,6 +31,7 @@ import { useQuery } from "@tanstack/react-query"
 import { serviceGetDashboard } from "@/app/(server)/api/user/services"
 import { serviceGetProfileMahasiswa } from "@/app/(server)/api/mahasiswa/services"
 import { serviceGetProfileDosen } from "@/app/(server)/api/dosen/services"
+import { ROLE_DOSEN_TEXT, ROLE_MAHASISWA_TEXT } from "@/utils/constants"
 
 export default function Profile() {
     const router = useRouter()
@@ -54,7 +55,7 @@ export default function Profile() {
         <section className="p-8">
             <div className="flex flex-col md:flex-row md:items-start md:justify-start gap-8">
                 {/* CARD PROFILE USERS (MAHASISWA DAN DOSEN) */}
-                {queryGetProfileMahasiswa.data?.data.user?.role === "mahasiswa" && (
+                {queryGetProfileMahasiswa.data?.data.user?.role === ROLE_MAHASISWA_TEXT && (
                     <div className="card_profile bg-[#fdfdfd] rounded-2xl w-full md:max-w-[360px] p-8 flex flex-col gap-3">
                         <div className="profile_mahasiswa flex gap-3 items-start">
                             <Avatar className="h-16 w-16">
@@ -124,7 +125,7 @@ export default function Profile() {
                             </div>
                     </div>
                 )}
-                {queryGetProfileDosen.data?.data.user?.role === "dosen" && (
+                {queryGetProfileDosen.data?.data.user?.role === ROLE_DOSEN_TEXT && (
                     <div className="card_profile bg-[#fdfdfd] rounded-2xl w-full md:max-w-[360px] p-8 flex flex-col gap-3">
                         <div className="profile_mahasiswa flex gap-3 items-start">
                             <Avatar className="h-16 w-16">
@@ -149,7 +150,7 @@ export default function Profile() {
                     </div>
                 )}
                 {/* CARD QUESIONER FOR USER MAHASISWA */}
-                {queryGetProfileMahasiswa.data?.data.user?.role === "mahasiswa" && (
+                {queryGetProfileMahasiswa.data?.data.user?.role === ROLE_MAHASISWA_TEXT && (
                     <div className="bg-[#fdfdfd] rounded-2xl p-8 flex flex-col gap-8 w-full">
                         <p className="text-xs md:text-base text-slate-600 font-bold">
                             Silakan melakukan Kuesioner Evaluasi Umpan Balik ( EUB )
@@ -188,7 +189,7 @@ export default function Profile() {
                     </div>
                 )}
                 {/* CARD DASHBOARD FOR USER DOSEN */}
-                {queryGetProfileDosen.data?.data.user?.role === "dosen" && (
+                {queryGetProfileDosen.data?.data.user?.role === ROLE_DOSEN_TEXT && (
                     <div className="bg-[#fdfdfd] rounded-2xl p-8 flex flex-col gap-8 w-full">
                         <div className="flex items-center justify-between">
                             <h1 className="text-xl md:text-2xl font-bold">Kinerja Saya</h1>
@@ -222,11 +223,11 @@ export default function Profile() {
                         <div className="flex items-center gap-3">
                             <div className="bg-[#fdfdfd] rounded-2xl p-8 w-full">
                                 <h1 className="text-xs md:text-base text-black/60">Mahasiswa</h1>
-                                <span className="text-2xl md:text-6xl text-black font-bold">{Number(queryGetDashboard.data?.data.totalCount.mahasiswa.count)}</span>
+                                <span className="text-2xl md:text-6xl text-black font-bold">{Number(queryGetDashboard.data?.data.totalCount.mahasiswa.count || 0)}</span>
                             </div>
                             <div className="bg-[#fdfdfd] rounded-2xl p-8 w-full">
                                 <h1 className="text-xs md:text-base text-black/60">Dosen</h1>
-                                <span className="text-2xl md:text-6xl text-black font-bold">{Number(queryGetDashboard.data?.data.totalCount.dosen.count)}</span>
+                                <span className="text-2xl md:text-6xl text-black font-bold">{Number(queryGetDashboard.data?.data.totalCount.dosen.count || 0)}</span>
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row gap-8">
@@ -265,36 +266,38 @@ export default function Profile() {
                                         ))}
                                     </TableBody>
                                 </Table>
-                            </div> 
-                            <div className="bg-[#fdfdfd] rounded-2xl p-8 w-full md:max-w-sm">
-                                <div className="mb-8 flex flex-col gap-1">
-                                    <h3>Peringkat teratas Dosen</h3>
-                                    <p className="text-black/60 text-xs">
-                                        Selamat <strong>{queryGetDashboard.data?.data.performance.rangking.dosen.at(0)?.name}</strong>,
-                                        saat ini mendapat peringkat teratas.
-                                    </p>
-                                </div>
-                                {queryGetDashboard.data?.data.performance.rangking.dosen.length ? 
-                                    queryGetDashboard.data?.data.performance.rangking.dosen.map((user, idx) => (
-                                        <div key={idx} className="py-3 flex items-center gap-3 w-full border-b">
-                                            <Avatar>
-                                                <AvatarImage src={""} alt={`avatar-user-${user.name}`} />
-                                                <AvatarFallback className="font-bold">
-                                                    {user.name.slice(0, 2).toUpperCase()}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <div className="text-[10px] capitalize">
-                                                <h3>{user.name}</h3>
-                                            </div>
-                                            <div className="ml-auto text-xs capitalize font-bold">
-                                                <h1>{user.rangking}</h1>
-                                            </div>
-                                        </div>
-                                    ))
-                                    :
-                                    <h3 className="text-center">Daftar Rangking Teratas dari Dosen.</h3>
-                                }
                             </div>
+                            {queryGetDashboard.data?.data.performance.rangking.dosen.at(0)?.name && (
+                                <div className="bg-[#fdfdfd] rounded-2xl p-8 w-full md:max-w-sm">
+                                    <div className="mb-8 flex flex-col gap-1">
+                                        <h3>Peringkat teratas Dosen</h3>
+                                        <p className="text-black/60 text-xs">
+                                            Selamat <strong>{queryGetDashboard.data?.data.performance.rangking.dosen.at(0)?.name || "..."}</strong>,
+                                            saat ini mendapat peringkat teratas.
+                                        </p>
+                                    </div>
+                                    {queryGetDashboard.data?.data.performance.rangking.dosen.length ?
+                                        queryGetDashboard.data?.data.performance.rangking.dosen.map((user, idx) => (
+                                            <div key={idx} className="py-3 flex items-center gap-3 w-full border-b">
+                                                <Avatar>
+                                                    <AvatarImage src={""} alt={`avatar-user-${user.name}`} />
+                                                    <AvatarFallback className="font-bold">
+                                                        {user.name.slice(0, 2).toUpperCase()}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <div className="text-[10px] capitalize">
+                                                    <h3>{user.name}</h3>
+                                                </div>
+                                                <div className="ml-auto text-xs capitalize font-bold">
+                                                    <h1>{user.rangking}</h1>
+                                                </div>
+                                            </div>
+                                        ))
+                                        :
+                                        <h3 className="text-center">Daftar Rangking Teratas dari Dosen.</h3>
+                                    }
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}

@@ -25,6 +25,18 @@ export const serviceListUsers = async (role: string, search: string) => {
     return { users: data.users, error: null };
 }
 
+export const serviceDeleteUser = async (userId: string) => {
+    const { data, error } = await authClient.admin.removeUser({
+        userId: userId,
+    });
+
+    if (error) {
+        return { deleteUser: false, error: error.message };
+    }
+
+    return { deleteUser: data.success, error: null };
+}
+
 export type Dashboard = {
     totalCount: {
         mahasiswa: {

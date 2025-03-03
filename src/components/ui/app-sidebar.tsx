@@ -4,13 +4,11 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/utils";
 import { auth } from "@/utils/auth";
 import { authClient } from "@/utils/auth-client";
 
-import { ArrowLeft, ArrowRight, User, Award } from "lucide-react";
-import { Sidebar, SidebarContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -27,34 +25,43 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { TeamSwitcher } from "./team-switcher";
 
-// Menu items.
-const items = [
-    {
-        title: "Profile",
-        url: "/app",
-        icon: User,
-        role: ["mahasiswa", "dosen", "admin"]
-    },
-    {
-        title: "Profile Dosen",
-        url: "/app/profile-dosen",
-        icon: Award,
-        role: ["admin"]
-    },
-    {
-        title: "Profile Mahasiswa",
-        url: "/app/profile-mahasiswa",
-        icon: Award,
-        role: ["admin"]
-    },
-    {
-        title: "Mata Kuliah",
-        url: "/app/mata-kuliah",
-        icon: Award,
-        role: ["admin"]
-    },
-];
+// This is sample data.
+const data = {
+    navMain: [
+        {
+            title: "Dashboard",
+            items: [
+                {
+                    title: "Profile",
+                    url: "/app",
+                    role: ["ADMIN", "DOSEN", "MAHASISWA"]
+                },
+            ],
+        },
+        {
+            title: "Utama",
+            items: [
+                {
+                    title: "Dosen",
+                    url: "/app/profile-dosen",
+                    role: ["ADMIN"]
+                },
+                {
+                    title: "Mahasiswa",
+                    url: "/app/profile-mahasiswa",
+                    role: ["ADMIN"]
+                },
+                {
+                    title: "Mata Kuliah",
+                    url: "/app/mata-kuliah",
+                    role: ["ADMIN"]
+                },
+            ],
+        },
+    ],
+}
 
 type Session = typeof auth.$Infer.Session;
 
@@ -66,42 +73,38 @@ interface Props {
 export default function AppSidebar({ children, authenticated }: Props) {
     const router = useRouter()
     const pathname = usePathname()
-    const isMobile = useIsMobile()
-
-    const [open, setOpen] = React.useState<boolean>(isMobile ? false : true)
 
     return (
-        <SidebarProvider open={open} onOpenChange={setOpen} style={
-            {
-                "--sidebar-width": "6rem",
-                // "--sidebar-width-mobile": "6rem",
-            } as React.CSSProperties
-        }>
-            <Sidebar className="border-none">
-                <SidebarContent className="pt-[106px]">
-                    <SidebarMenu className="px-1 gap-3 items-center justify-center">
-                        {items.filter(i => i.role.find((role: string) => role === authenticated.user.role as string)).map((item) => (
-                            <SidebarMenuItem key={item.title}>
-                                <SidebarMenuButton asChild className="rounded-full">
-                                    <Link href={item.url} className={cn(
-                                        "hover:bg-[#FDFDFD] hover:text-[#10754D] font-bold w-11 h-11 flex items-center justify-center",
-                                        pathname === item.url ? "bg-[#FDFDFD] text-[#10754D]" : ""
-                                    )}>
-                                        <item.icon />
-                                        <span className="sr-only">{item.title}</span>
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        ))}
-                    </SidebarMenu>
+        <SidebarProvider>
+            <Sidebar>
+                <SidebarHeader>
+                    <TeamSwitcher teams={[
+                        { name: authenticated.user.name, avatar: authenticated.user.image || "", on: "Online" }
+                    ]} />
+                </SidebarHeader>
+                <SidebarContent>
+                    {data.navMain.map((nav, idx) => (
+                        <SidebarGroup key={idx}>
+                            <SidebarGroupLabel>{nav.title}</SidebarGroupLabel>
+                            <SidebarMenu className="px-3">
+                                {nav.items.filter(i => i.role.find((role: string) => role === authenticated.user.role as string)).map((item) => (
+                                    <SidebarMenuItem key={item.title}>
+                                        <SidebarMenuButton asChild>
+                                            <Link href={item.url} className={cn(item.url === pathname ? "bg-sidebar-accent" : "")}>
+                                                <span>{item.title}</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                ))}
+                            </SidebarMenu>
+                        </SidebarGroup>
+                    ))}
                 </SidebarContent>
             </Sidebar>
             <main className="w-full">
                 <header className="px-8 py-3 flex gap-3 items-center">
                     <div className="flex gap-8 items-center w-full">
-                        <Button variant={"secondary"} size={"icon"} onClick={() => setOpen(!open)}>
-                            {open ? <ArrowLeft /> : <ArrowRight />}
-                        </Button>
+                        <SidebarTrigger />
                         <h1 className="text-xs md:text-xl capitalize">
                             {pathname === '/app' || pathname === '/app/dashboard' ? `Hai, ${authenticated.user.name}` : pathname.split("/").findLast(name => name)?.split("-").join(" ")}
                         </h1>

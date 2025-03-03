@@ -1,10 +1,11 @@
 "use client"
 
 import * as React from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Trash2 } from "lucide-react";
 
 // utils
 import { authClient } from "@/utils/auth-client";
@@ -13,7 +14,7 @@ import { authClient } from "@/utils/auth-client";
 import { useToast } from "@/hooks/use-toast";
 
 // services
-import { serviceListUsers } from "@/app/(server)/api/user/services";
+import { serviceDeleteUser, serviceListUsers } from "@/app/(server)/api/user/services";
 
 // components
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,6 +22,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { serviceDeleteProfileDosen } from "@/app/(server)/api/dosen/services";
 
 const formSchemaSignUpDosen = z.object({
     name: z.string()
@@ -35,8 +38,11 @@ const formSchemaSignUpDosen = z.object({
             message: 'Email is not valid!'
         }),
     nbm: z.string()
-        .min(2, {
-            message: 'Nbm is not empty!',
+        .min(1, {
+            message: 'NBM should be minimal 1!',
+        })
+        .max(12, {
+            message: "NBM should be maximal 12!"
         }),
 })
 
@@ -60,12 +66,15 @@ const FormDialogSignUpDosen = () => {
             name: values.name,
             email: values.email,
             password: "12345678",
-            role: "dosen",
-            data: {}
+            role: "DOSEN"
         }, {
             onSuccess: async (ctx) => {
                 // TO DO ...
                 const { user } = ctx.data
+                await authClient.admin.setRole({
+                    userId: user.id,
+                    role: "DOSEN",
+                })
                 const { name, nbm } = await formSchemaSignUpDosen.parseAsync(values)
                 await fetch('/api/dosen/save', {
                     method: 'POST',
@@ -77,7 +86,7 @@ const FormDialogSignUpDosen = () => {
                 alert.toast({
                     variant: 'default',
                     title: 'Success',
-                    description: 'You are has been to sign up account dosen.',
+                    description: `Anda berhasil mendaftar akun ${name}.`,
                 })
             },
             onError: (ctx) => {
@@ -158,11 +167,16 @@ const FormDialogSignUpDosen = () => {
 }
 
 export default function ProfileListDosen() {
+    const queryClient = useQueryClient()
     const alert = useToast()
 
     const [search, setSearch] = React.useState<string>("")
 
-    const queryListUsers = useQuery({ queryKey: ['list-users-dosen'], queryFn: () => serviceListUsers("dosen", search) })
+    const queryListUsers = useQuery({ queryKey: ['list-users-dosen'], queryFn: () => serviceListUsers("DOSEN", search) })
+
+    const mutationDeleteAccountDosen = useMutation({
+        mutationKey: ["delete-account-dosen"], mutationFn: serviceDeleteProfileDosen
+    })
 
     // LOADING VIEW ELEMENTS
     if (queryListUsers.isLoading) {
@@ -194,7 +208,46 @@ export default function ProfileListDosen() {
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                 {queryListUsers.data?.users?.map((user, idx) => (
-                    <div key={idx} className="card_profile bg-[#fdfdfd] rounded-2xl w-full md:max-w-[360px] p-8 flex flex-col gap-3">
+                    <div key={idx} className="card_profile bg-[#fdfdfd] rounded-2xl w-full md:max-w-[360px] p-8 flex flex-col gap-3 relative">
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant={"destructive"} size={"icon"} className="absolute z-10 right-1 top-1 rounded-full">
+                                    <Trash2 />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Apakah anda yakin ingin menghapus akun {user.name}?
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => mutationDeleteAccountDosen.mutate(user.id, {
+                                        onSuccess: async () => {
+                                            await serviceDeleteUser(user.id)
+
+                                            queryClient.invalidateQueries({ queryKey: ["list-users-dosen"] })
+                                            alert.toast({
+                                                variant: 'default',
+                                                title: 'Success',
+                                                description: `Anda berhasil menghapus akun ${user.name}.`,
+                                            })
+                                        },
+                                        onError: (error) => {
+                                            alert.toast({
+                                                variant: 'destructive',
+                                                title: 'Error',
+                                                description: error.message,
+                                            })
+                                        }
+                                    })}>
+                                        Yakin
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                         <div className="flex gap-3 items-start">
                             <Avatar className="border h-16 w-16">
                                 <AvatarImage src={user.image || ""} />
