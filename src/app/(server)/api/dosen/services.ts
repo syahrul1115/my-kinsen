@@ -40,3 +40,16 @@ export const serviceGetProfileDosen = async () => {
 
     return result;
 }
+
+export const serviceDeleteProfileDosen = async (
+    userId: string
+) => {
+    const options: RequestInit = {
+        method: 'DELETE'
+    }
+
+    const response = await fetch("/api/dosen/" + userId, options)
+    const result: ResultService<string> = await response.json()
+
+    return result;
+}
