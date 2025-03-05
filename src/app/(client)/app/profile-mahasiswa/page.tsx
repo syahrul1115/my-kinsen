@@ -1,24 +1,34 @@
 "use client"
 
 import * as React from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // hooks
 import { useToast } from "@/hooks/use-toast";
 
 // services
-import { serviceListUsers } from "@/app/(server)/api/user/services";
+import { serviceDeleteUser, serviceListUsers } from "@/app/(server)/api/user/services";
+import { serviceDeleteProfileMahasiswa } from "@/app/(server)/api/mahasiswa/services";
 
 // components
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+
+import { Trash2 } from "lucide-react";
 
 export default function ProfileListMahasiswa() {
+    const queryClient = useQueryClient()
     const alert = useToast()
 
     const [search, setSearch] = React.useState<string>("")
 
     const queryListUsers = useQuery({ queryKey: ['list-users-mahasiswa'], queryFn: () => serviceListUsers("mahasiswa", search) })
+
+    const mutationDeleteAccountDosen = useMutation({
+        mutationKey: ["delete-profile-mahasiswa"], mutationFn: serviceDeleteProfileMahasiswa
+    })
 
     // LOADING VIEW ELEMENTS
     if (queryListUsers.isLoading) {
@@ -49,7 +59,46 @@ export default function ProfileListMahasiswa() {
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                 {queryListUsers.data?.users?.map((user, idx) => (
-                    <div key={idx} className="card_profile bg-[#fdfdfd] rounded-2xl w-full md:max-w-[360px] p-8 flex flex-col gap-3">
+                    <div key={idx} className="card_profile bg-[#fdfdfd] rounded-2xl w-full md:max-w-[360px] p-8 flex flex-col gap-3 relative">
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant={"destructive"} size={"icon"} className="absolute z-10 right-1 top-1 rounded-full">
+                                    <Trash2 />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Apakah anda yakin ingin menghapus akun {user.name}?
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => mutationDeleteAccountDosen.mutate(user.id, {
+                                        onSuccess: async () => {
+                                            await serviceDeleteUser(user.id)
+
+                                            queryClient.invalidateQueries({ queryKey: ["list-users-mahasiswa"] })
+                                            alert.toast({
+                                                variant: 'default',
+                                                title: 'Success',
+                                                description: `Anda berhasil menghapus akun ${user.name}.`,
+                                            })
+                                        },
+                                        onError: (error) => {
+                                            alert.toast({
+                                                variant: 'destructive',
+                                                title: 'Error',
+                                                description: error.message,
+                                            })
+                                        }
+                                    })}>
+                                        Yakin
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                         <div className="flex gap-3 items-start">
                             <Avatar className="border h-16 w-16">
                                 <AvatarImage src={user.image || ""} />
