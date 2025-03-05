@@ -36,9 +36,9 @@ const data = {
                 {
                     title: "Profile",
                     url: "/app",
-                    role: ["ADMIN", "DOSEN", "MAHASISWA"]
                 },
             ],
+            role: ["ADMIN", "DOSEN", "MAHASISWA"] 
         },
         {
             title: "Utama",
@@ -46,19 +46,17 @@ const data = {
                 {
                     title: "Dosen",
                     url: "/app/profile-dosen",
-                    role: ["ADMIN"]
                 },
                 {
                     title: "Mahasiswa",
                     url: "/app/profile-mahasiswa",
-                    role: ["ADMIN"]
                 },
                 {
                     title: "Mata Kuliah",
                     url: "/app/mata-kuliah",
-                    role: ["ADMIN"]
                 },
             ],
+            role: ["ADMIN"]
         },
     ],
 }
@@ -83,11 +81,11 @@ export default function AppSidebar({ children, authenticated }: Props) {
                     ]} />
                 </SidebarHeader>
                 <SidebarContent>
-                    {data.navMain.map((nav, idx) => (
+                    {data.navMain.filter(i => i.role.find(role => role === authenticated.user.role as string)).map((nav, idx) => (
                         <SidebarGroup key={idx}>
                             <SidebarGroupLabel>{nav.title}</SidebarGroupLabel>
                             <SidebarMenu className="px-3">
-                                {nav.items.filter(i => i.role.find((role: string) => role === authenticated.user.role as string)).map((item) => (
+                                {nav.items.map((item) => (
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton asChild>
                                             <Link href={item.url} className={cn(item.url === pathname ? "bg-sidebar-accent" : "")}>
