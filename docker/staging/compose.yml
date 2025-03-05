@@ -43,5 +43,4 @@ services:
 
 networks:
   web_my_kinsen:
-    # Specify driver options
     driver: bridge
