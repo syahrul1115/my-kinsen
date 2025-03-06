@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 
 // services
 import { serviceDeleteUser, serviceListUsers } from "@/app/(server)/api/user/services";
+import { serviceDeleteProfileDosen } from "@/app/(server)/api/dosen/services";
 
 // components
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,7 +24,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { serviceDeleteProfileDosen } from "@/app/(server)/api/dosen/services";
 
 const formSchemaSignUpDosen = z.object({
     name: z.string()
@@ -175,7 +175,7 @@ export default function ProfileListDosen() {
     const queryListUsers = useQuery({ queryKey: ['list-users-dosen'], queryFn: () => serviceListUsers("DOSEN", search) })
 
     const mutationDeleteAccountDosen = useMutation({
-        mutationKey: ["delete-account-dosen"], mutationFn: serviceDeleteProfileDosen
+        mutationKey: ["delete-profile-dosen"], mutationFn: serviceDeleteProfileDosen
     })
 
     // LOADING VIEW ELEMENTS

@@ -29,3 +29,17 @@ export const serviceGetProfileMahasiswa = async () => {
 
     return result;
 }
+
+
+export const serviceDeleteProfileMahasiswa = async (
+    userId: string
+) => {
+    const options: RequestInit = {
+        method: 'DELETE'
+    }
+
+    const response = await fetch("/api/mahasiswa/" + userId, options)
+    const result: ResultService<string> = await response.json()
+
+    return result;
+}
