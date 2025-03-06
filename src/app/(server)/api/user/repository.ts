@@ -1,3 +1,4 @@
+import { ROLE_STUDENT_TEXT } from "@/utils/constants"
 import { db } from "@/utils/database"
 
 export async function findTotalCountMahasiswa() {
@@ -18,7 +19,7 @@ export async function findRecentNewUsersMahasiswa() {
     return await query.selectAll()
         .where((eb) =>
             eb.or([
-                eb('role', 'ilike', `%mahasiswa%`)
+                eb('role', 'ilike', `%${ROLE_STUDENT_TEXT}%`)
             ])
         )
         .limit(5)

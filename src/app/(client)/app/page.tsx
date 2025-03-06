@@ -3,6 +3,15 @@
 // next
 import * as React from "react"
 import { useRouter } from "next/navigation"
+import { useQuery } from "@tanstack/react-query"
+
+// utils
+import { ROLE_TEACHER_TEXT, ROLE_STUDENT_TEXT } from "@/utils/constants"
+
+// services
+import { serviceGetDashboard } from "@/app/(server)/api/user/services"
+import { serviceGetProfileMahasiswa } from "@/app/(server)/api/mahasiswa/services"
+import { serviceGetProfileDosen } from "@/app/(server)/api/dosen/services"
 
 // components
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -27,11 +36,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { useQuery } from "@tanstack/react-query"
-import { serviceGetDashboard } from "@/app/(server)/api/user/services"
-import { serviceGetProfileMahasiswa } from "@/app/(server)/api/mahasiswa/services"
-import { serviceGetProfileDosen } from "@/app/(server)/api/dosen/services"
-import { ROLE_DOSEN_TEXT, ROLE_MAHASISWA_TEXT } from "@/utils/constants"
 
 export default function Profile() {
     const router = useRouter()
@@ -55,7 +59,7 @@ export default function Profile() {
         <section className="p-8">
             <div className="flex flex-col md:flex-row md:items-start md:justify-start gap-8">
                 {/* CARD PROFILE USERS (MAHASISWA DAN DOSEN) */}
-                {queryGetProfileMahasiswa.data?.data.user?.role === ROLE_MAHASISWA_TEXT && (
+                {queryGetProfileMahasiswa.data?.data.user?.role === ROLE_STUDENT_TEXT && (
                     <div className="card_profile bg-[#fdfdfd] rounded-2xl w-full md:max-w-[360px] p-8 flex flex-col gap-3">
                         <div className="profile_mahasiswa flex gap-3 items-start">
                             <Avatar className="h-16 w-16">
@@ -125,7 +129,7 @@ export default function Profile() {
                             </div>
                     </div>
                 )}
-                {queryGetProfileDosen.data?.data.user?.role === ROLE_DOSEN_TEXT && (
+                {queryGetProfileDosen.data?.data.user?.role === ROLE_TEACHER_TEXT && (
                     <div className="card_profile bg-[#fdfdfd] rounded-2xl w-full md:max-w-[360px] p-8 flex flex-col gap-3">
                         <div className="profile_mahasiswa flex gap-3 items-start">
                             <Avatar className="h-16 w-16">
@@ -150,7 +154,7 @@ export default function Profile() {
                     </div>
                 )}
                 {/* CARD QUESIONER FOR USER MAHASISWA */}
-                {queryGetProfileMahasiswa.data?.data.user?.role === ROLE_MAHASISWA_TEXT && (
+                {queryGetProfileMahasiswa.data?.data.user?.role === ROLE_STUDENT_TEXT && (
                     <div className="bg-[#fdfdfd] rounded-2xl p-8 flex flex-col gap-8 w-full">
                         <p className="text-xs md:text-base text-slate-600 font-bold">
                             Silakan melakukan Kuesioner Evaluasi Umpan Balik ( EUB )
@@ -189,7 +193,7 @@ export default function Profile() {
                     </div>
                 )}
                 {/* CARD DASHBOARD FOR USER DOSEN */}
-                {queryGetProfileDosen.data?.data.user?.role === ROLE_DOSEN_TEXT && (
+                {queryGetProfileDosen.data?.data.user?.role === ROLE_TEACHER_TEXT && (
                     <div className="bg-[#fdfdfd] rounded-2xl p-8 flex flex-col gap-8 w-full">
                         <div className="flex items-center justify-between">
                             <h1 className="text-xl md:text-2xl font-bold">Kinerja Saya</h1>

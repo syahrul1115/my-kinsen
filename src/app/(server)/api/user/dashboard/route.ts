@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 
 // utils
 import { auth } from "@/utils/auth";
+import { ROLE_ADMIN_TEXT, ROLE_TEACHER_TEXT } from "@/utils/constants";
 
 import { findTotalCountMahasiswa, findTotalCountDosen, findRecentNewUsersMahasiswa, findPerformanceDosen, findRangkingDosenList } from "../repository";
 
@@ -21,7 +22,7 @@ export async function GET() {
 
     let responseAPI = null
 
-    if (session.user.role === "admin") {
+    if (session.user.role === ROLE_ADMIN_TEXT) {
         const totalCountMahasiswaExists = await findTotalCountMahasiswa()
         const totalCountDosenExists = await findTotalCountDosen()
         const recentNewUserExists = await findRecentNewUsersMahasiswa()
@@ -47,7 +48,7 @@ export async function GET() {
         }
     }
     
-    if (session.user.role === "dosen") {
+    if (session.user.role === ROLE_TEACHER_TEXT) {
         const totalPerformanceExists = await findPerformanceDosen(session.user.name)
 
         responseAPI = {
