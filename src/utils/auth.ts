@@ -5,6 +5,7 @@ import { nextCookies } from "better-auth/next-js"
 // utils
 import { db } from "@/utils/database"
 import { sendMail } from "@/utils/send-mail"
+import { ROLE_STUDENT_TEXT } from "./constants"
 
 export const auth = betterAuth({
     database: {
@@ -26,7 +27,7 @@ export const auth = betterAuth({
             role: {
                 type: "string",
                 required: false,
-                defaultValue: "MAHASISWA",
+                defaultValue: ROLE_STUDENT_TEXT,
                 input: false
             }
         }

@@ -4,6 +4,9 @@ import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 
+// utils
+import { ROLE_STUDENT_TEXT } from "@/utils/constants";
+
 // hooks
 import { useToast } from "@/hooks/use-toast";
 
@@ -23,7 +26,7 @@ export default function ProfileListMahasiswa() {
 
     const [search, setSearch] = React.useState<string>("")
 
-    const queryListUsers = useQuery({ queryKey: ['list-users-mahasiswa'], queryFn: () => serviceListUsers("mahasiswa", search) })
+    const queryListUsers = useQuery({ queryKey: ['list-users-mahasiswa'], queryFn: () => serviceListUsers(ROLE_STUDENT_TEXT, search) })
 
     const mutationDeleteAccountDosen = useMutation({
         mutationKey: ["delete-profile-mahasiswa"], mutationFn: serviceDeleteProfileMahasiswa

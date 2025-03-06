@@ -46,6 +46,7 @@ CREATE TABLE "public"."quesioner" (
     "purposeValue" text NOT NULL,
     "processValue" text NOT NULL,
     "evaluationValue" text NOT NULL,
+    "rangking" text NOT NULL,
     "descriptionLiked" text,
     "descriptionSuggestion" text,
     "createdAt" timestamp NOT NULL,

@@ -9,6 +9,7 @@ import { Trash2 } from "lucide-react";
 
 // utils
 import { authClient } from "@/utils/auth-client";
+import { ROLE_TEACHER_TEXT } from "@/utils/constants";
 
 // hooks
 import { useToast } from "@/hooks/use-toast";
@@ -66,14 +67,14 @@ const FormDialogSignUpDosen = () => {
             name: values.name,
             email: values.email,
             password: "12345678",
-            role: "DOSEN"
+            role: ROLE_TEACHER_TEXT
         }, {
             onSuccess: async (ctx) => {
                 // TO DO ...
                 const { user } = ctx.data
                 await authClient.admin.setRole({
                     userId: user.id,
-                    role: "DOSEN",
+                    role: ROLE_TEACHER_TEXT,
                 })
                 const { name, nbm } = await formSchemaSignUpDosen.parseAsync(values)
                 await fetch('/api/dosen/save', {
@@ -172,7 +173,7 @@ export default function ProfileListDosen() {
 
     const [search, setSearch] = React.useState<string>("")
 
-    const queryListUsers = useQuery({ queryKey: ['list-users-dosen'], queryFn: () => serviceListUsers("DOSEN", search) })
+    const queryListUsers = useQuery({ queryKey: ['list-users-dosen'], queryFn: () => serviceListUsers(ROLE_TEACHER_TEXT, search) })
 
     const mutationDeleteAccountDosen = useMutation({
         mutationKey: ["delete-profile-dosen"], mutationFn: serviceDeleteProfileDosen

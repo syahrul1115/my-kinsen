@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/utils";
 import { auth } from "@/utils/auth";
 import { authClient } from "@/utils/auth-client";
+import { ROLE_ADMIN_TEXT, ROLE_STUDENT_TEXT, ROLE_TEACHER_TEXT } from "@/utils/constants";
 
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -38,7 +39,7 @@ const data = {
                     url: "/app",
                 },
             ],
-            role: ["ADMIN", "DOSEN", "MAHASISWA"] 
+            role: [ROLE_ADMIN_TEXT, ROLE_TEACHER_TEXT, ROLE_STUDENT_TEXT] 
         },
         {
             title: "Utama",
@@ -56,7 +57,7 @@ const data = {
                     url: "/app/mata-kuliah",
                 },
             ],
-            role: ["ADMIN"]
+            role: [ROLE_ADMIN_TEXT]
         },
     ],
 }
