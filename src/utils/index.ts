@@ -79,3 +79,16 @@ export const initModuleQuesionerList: ModuleQuesioners[] = [
         ]
     }
 ]
+
+export const getPenilaian = (nilai: number) => {
+    switch (nilai !== null) {
+        case nilai > 0.8:
+            return "Baik";
+        case nilai > 0.5 && nilai < 0.8:
+            return "Cukup";
+        case nilai > 0 && nilai < 0.5:
+            return "Kurang";
+        default:
+            return "-";
+    }
+} 

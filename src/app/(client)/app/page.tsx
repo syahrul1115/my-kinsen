@@ -2,31 +2,22 @@
 
 // next
 import * as React from "react"
-import { useRouter } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
+import Link from "next/link"
 
 // utils
 import { ROLE_TEACHER_TEXT, ROLE_STUDENT_TEXT } from "@/utils/constants"
+import { getPenilaian } from "@/utils"
 
 // services
 import { serviceGetDashboard } from "@/app/(server)/api/user/services"
 import { serviceGetProfileMahasiswa } from "@/app/(server)/api/mahasiswa/services"
 import { serviceGetProfileDosen } from "@/app/(server)/api/dosen/services"
+import { serviceListMatkuls } from "@/app/(server)/api/matkul/services"
+import { serviceListQuesioners } from "@/app/(server)/api/quesioner/services"
 
 // components
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger
-} from "@/components/ui/alert-dialog"
 import {
     Table,
     TableBody,
@@ -38,12 +29,15 @@ import {
 } from "@/components/ui/table"
 
 export default function Profile() {
-    const router = useRouter()
-    
     const queryGetProfileMahasiswa = useQuery({ queryKey: ["get-profile-mahasiswa"], queryFn: () => serviceGetProfileMahasiswa() })
     const queryGetProfileDosen = useQuery({ queryKey: ["get-profile-dosen"], queryFn: () => serviceGetProfileDosen() })
-
+    
     const queryGetDashboard = useQuery({ queryKey: ["get-dashboard"], queryFn: () => serviceGetDashboard() })
+    
+    const queryListMatkuls = useQuery({queryKey: ["list-matkuls"], queryFn: () => serviceListMatkuls(1, 10, "")})
+    const queryListQuesioners = useQuery({ queryKey: ["list-quesioners"], queryFn: () => serviceListQuesioners(1, 10, queryGetProfileMahasiswa.data?.data.user?.name)})
+
+    React.useEffect(() => { queryListQuesioners.refetch() }, [queryGetProfileMahasiswa.data?.data.user?.name, queryListQuesioners])
 
     // LOADING VIEW ELEMENTS
     if (queryGetProfileMahasiswa.isLoading || queryGetProfileDosen.isLoading || queryGetDashboard.isLoading) {
@@ -155,41 +149,20 @@ export default function Profile() {
                 )}
                 {/* CARD QUESIONER FOR USER MAHASISWA */}
                 {queryGetProfileMahasiswa.data?.data.user?.role === ROLE_STUDENT_TEXT && (
-                    <div className="bg-[#fdfdfd] rounded-2xl p-8 flex flex-col gap-8 w-full">
-                        <p className="text-xs md:text-base text-slate-600 font-bold">
-                            Silakan melakukan Kuesioner Evaluasi Umpan Balik ( EUB )
-                        </p>
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button>ISI KUESIONER</Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle></AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        {"Assalamu'alaikum Wr.Wb."} <br /><br />
-                                        Kuesioner kinerja proses belajar mengajar (PBM) bertujuan untuk mengetahui
-                                        penilaian mahasiswa tentang PBM dan kapabilitas dosen dalam mengajar. <br /><br />
-                                        Penilaian anda menjadi masukkan yang bermanfaat bagi dosen
-                                        untuk memperbaiki kinerja dan sebagai perbaikan sistem pembelajaran. <br /><br />
-                                        Penilaian anda tidak mempengaruhi nilai pada matakuliah terkait, untuk itu
-                                        mohon dinilai secara jujur. Apabila ada unsur arahan atau paksaan
-                                        atau intimidasi dari dosen pengampu matakuliah
-                                        atau kaprodi harap email ke name@domain.ac.id <br /><br />
-                                        Terima kasih atas kerjasamanya mengisi kuesioner dengan jujur. <br /><br />
-                                        {"Wassalamu'alaikum Wr.Wb"}.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => {
-                                        router.push("/app/quesioner/kuisioner-penilaian-kinerja-dosen-dalam-perkuliahan")
-                                    }}>
-                                        Terima dan Selanjutnya
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
+                    <div className="flex flex-col gap-1 w-full overflow-y-auto min-h-[460px]">
+                        {
+                            queryListMatkuls.data?.data.items.filter(matkul =>
+                                queryGetProfileMahasiswa.data?.data.profile.semester === matkul.semester
+                            ).map((matkul, idx) =>
+                                <Link href={queryListQuesioners.data?.data.items?.filter(quesioner => quesioner.toName === matkul.teacher.name).length ? "" : `/app/quesioner/kuisioner-penilaian-kinerja-dosen-dalam-perkuliahan?mata_kuliah=${matkul.name}&teacher_name=${matkul.teacher.name}&teacher_nbm=${matkul.teacher.nbm}`} key={idx}>
+                                    <div className="bg-[#fdfdfd] rounded-2xl p-8 flex gap-8 w-full">
+                                        <h3>{matkul.name}</h3>
+                                        <p>{matkul.teacher.name}</p>
+                                        <input key={idx} type="checkbox" name="done" id="done" checked={queryListQuesioners.data?.data.items?.filter(quesioner => quesioner.toName === matkul.teacher.name).length ? true : false} onChange={() => {}} className="ml-auto" />
+                                    </div>
+                                </Link>
+                            )
+                        }
                     </div>
                 )}
                 {/* CARD DASHBOARD FOR USER DOSEN */}
@@ -197,25 +170,37 @@ export default function Profile() {
                     <div className="bg-[#fdfdfd] rounded-2xl p-8 flex flex-col gap-8 w-full">
                         <div className="flex items-center justify-between">
                             <h1 className="text-xl md:text-2xl font-bold">Kinerja Saya</h1>
-                            <p>{Number(queryGetDashboard.data?.data.performance.dosen?.rangking ?? 0) > 1 ? "Peringkat 1" : ""}</p>
+                            <p>{Number(queryGetDashboard.data?.data.performance.dosen?.rangking ?? 0) === 1 ? "Peringkat 1" : "-"}</p>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="grid grid-cols-3 items-center gap-3">
                             <div>
-                                <span className="text-base md:text-xl text-black/60">Rencana</span>
-                                <h1 className="text-2xl md:text-4xl font-bold">
-                                    {Number(queryGetDashboard.data?.data.performance.dosen?.purposeValue ?? 0)}
+                                <span className="text-xs text-black/60">Rencana</span>
+                                <h1 className={`text-base font-bold
+                                    ${getPenilaian(Number(queryGetDashboard.data?.data.performance.dosen?.purposeValue ?? 0)) === "Baik" && "text-green-400"}
+                                    ${getPenilaian(Number(queryGetDashboard.data?.data.performance.dosen?.purposeValue ?? 0)) === "Cukup" && "text-yellow-400"}
+                                    ${getPenilaian(Number(queryGetDashboard.data?.data.performance.dosen?.purposeValue ?? 0)) === "Kurang" && "text-red-400"}
+                                `}>
+                                    {getPenilaian(Number(queryGetDashboard.data?.data.performance.dosen?.purposeValue ?? 0))}
+                                </h1>
+                             </div>
+                            <div>
+                                <span className="text-xs text-black/60">Process</span>
+                                <h1 className={`text-base font-bold
+                                    ${getPenilaian(Number(queryGetDashboard.data?.data.performance.dosen?.processValue ?? 0)) === "Baik" && "text-green-400"}
+                                    ${getPenilaian(Number(queryGetDashboard.data?.data.performance.dosen?.processValue ?? 0)) === "Cukup" && "text-yellow-400"}
+                                    ${getPenilaian(Number(queryGetDashboard.data?.data.performance.dosen?.processValue ?? 0)) === "Kurang" && "text-red-400"}    
+                                `}>
+                                    {getPenilaian(Number(queryGetDashboard.data?.data.performance.dosen?.processValue ?? 0))}
                                 </h1>
                             </div>
                             <div>
-                                <span className="text-base md:text-xl text-black/60">Process</span>
-                                <h1 className="text-2xl md:text-4xl font-bold">
-                                    {Number(queryGetDashboard.data?.data.performance.dosen?.processValue ?? 0)}
-                                </h1>
-                            </div>
-                            <div>
-                                <span className="text-base md:text-xl text-black/60">Evaluasi</span>
-                                <h1 className="text-2xl md:text-4xl font-bold">
-                                    {Number(queryGetDashboard.data?.data.performance.dosen?.evaluationValue ?? 0)}
+                                <span className="text-xs text-black/60">Evaluasi</span>
+                                <h1 className={`text-base font-bold
+                                    ${getPenilaian(Number(queryGetDashboard.data?.data.performance.dosen?.evaluationValue ?? 0)) === "Baik" && "text-green-400"}
+                                    ${getPenilaian(Number(queryGetDashboard.data?.data.performance.dosen?.evaluationValue ?? 0)) === "Cukup" && "text-yellow-400"}
+                                    ${getPenilaian(Number(queryGetDashboard.data?.data.performance.dosen?.evaluationValue ?? 0)) === "Kurang" && "text-red-400"}
+                                `}>
+                                    {getPenilaian(Number(queryGetDashboard.data?.data.performance.dosen?.evaluationValue ?? 0))}
                                 </h1>
                             </div>
                         </div>
@@ -227,11 +212,11 @@ export default function Profile() {
                         <div className="flex items-center gap-3">
                             <div className="bg-[#fdfdfd] rounded-2xl p-8 w-full">
                                 <h1 className="text-xs md:text-base text-black/60">Mahasiswa</h1>
-                                <span className="text-2xl md:text-6xl text-black font-bold">{Number(queryGetDashboard.data?.data.totalCount.mahasiswa.count || 0)}</span>
+                                <span className="text-2xl md:text-6xl text-black font-bold">{Number(queryGetDashboard.data?.data.totalCount?.mahasiswa?.count || 0)}</span>
                             </div>
                             <div className="bg-[#fdfdfd] rounded-2xl p-8 w-full">
                                 <h1 className="text-xs md:text-base text-black/60">Dosen</h1>
-                                <span className="text-2xl md:text-6xl text-black font-bold">{Number(queryGetDashboard.data?.data.totalCount.dosen.count || 0)}</span>
+                                <span className="text-2xl md:text-6xl text-black font-bold">{Number(queryGetDashboard.data?.data.totalCount?.dosen?.count || 0)}</span>
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row gap-8">

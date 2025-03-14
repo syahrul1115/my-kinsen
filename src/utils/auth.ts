@@ -22,14 +22,6 @@ export const auth = betterAuth({
                     text: `Click the link to approve the change: ${url}`
                 })
             }
-        },
-        additionalFields: {
-            role: {
-                type: "string",
-                required: false,
-                defaultValue: ROLE_STUDENT_TEXT,
-                input: false
-            }
         }
     },
     session: {
@@ -49,8 +41,7 @@ export const auth = betterAuth({
         nextCookies(),
         openAPI(),
         admin({
-            defaultRole: "mahasiswa",
-            adminRole: ["admin", "superAdmin"]
+            defaultRole: ROLE_STUDENT_TEXT
         })
     ]
 })
