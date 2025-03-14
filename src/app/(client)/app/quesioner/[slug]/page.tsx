@@ -1,18 +1,16 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useMutation, useQuery } from "@tanstack/react-query"
 
 // services
 import { serviceCreateQuesioner } from "@/app/(server)/api/quesioner/services"
 import { serviceGetProfileMahasiswa } from "@/app/(server)/api/mahasiswa/services"
-import { serviceListMatkuls } from "@/app/(server)/api/matkul/services"
 
 // components
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -30,11 +28,7 @@ import { ModuleQuesionerList } from "@/types/app"
 export default function MySimpleQuesioner() {
     const alert = useToast()
     const router = useRouter()
-
-    // STATE DATA PAGINATION
-    const [page] = React.useState<number>(1)
-    const [pageSize] = React.useState<number>(5)
-    const [search, setSearch] = React.useState<string>("")
+    const searchParams = useSearchParams()
 
     // STATE DATA FORM
     const [dosenName, setDosenName] = React.useState<string>("")
@@ -48,11 +42,14 @@ export default function MySimpleQuesioner() {
 
 
     const queryGetProfile = useQuery({queryKey: ["get-profile"], queryFn: () => serviceGetProfileMahasiswa()})
-    const queryListMatkuls = useQuery({queryKey: ["list-matkuls"], queryFn: () => serviceListMatkuls(page, pageSize, search)})
 
     const mutationQuesioner = useMutation({ mutationKey: ["create-new-quesioner"], mutationFn: serviceCreateQuesioner })
 
-    React.useEffect(() => {queryListMatkuls.refetch()}, [search, queryListMatkuls])
+    React.useEffect(() => {
+        setMatkul(searchParams.get("mata_kuliah") ?? "")
+        setDosenName(searchParams.get("teacher_name") ?? "")
+        setDosenNbm(searchParams.get("teacher_nbm") ?? "")
+    }, [searchParams])
     
     // STATE DATA TO CONTROL LIST MODULE IN FORM
     const { control, handleSubmit } = useForm<ModuleQuesionerList>({
@@ -150,7 +147,7 @@ export default function MySimpleQuesioner() {
     }
 
     // LOADING VIEW ELEMENTS
-    if (queryGetProfile.isLoading || queryListMatkuls.isLoading) {
+    if (queryGetProfile.isLoading) {
         return (
             <section className="border bg-background z-50 absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center">
                 <h1 className="text-2xl">Loading . . .</h1>
@@ -168,36 +165,12 @@ export default function MySimpleQuesioner() {
                             <Label htmlFor="matkul">
                                 Mata Kuliah <span className="text-red-600">*</span>
                             </Label>
-                            <Select
-                                onValueChange={value => {
-                                    setMatkul(value);
-                                    setDosenName(
-                                        queryListMatkuls.data?.data.items.find(i => value === i.name)?.teacher.name ?? ""
-                                    )
-                                    setDosenNbm(
-                                        queryListMatkuls.data?.data.items.find(i => value === i.name)?.teacher.nbm ?? ""
-                                    )
-                                }}
-                                value={matkul}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Pilih Mata Kuliah" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <Input
-                                        placeholder="CARI MATA KULIAH"
-                                        value={search}
-                                        onChange={input => setSearch(input.target.value)}
-                                    />
-                                    {queryListMatkuls.data?.data.items.filter(i =>
-                                        queryGetProfile.data?.data.profile.semester === i.semester
-                                    ).map(i =>
-                                        <SelectItem id="matkul" key={i.id} value={i.name}>
-                                            {i.name.toUpperCase()}
-                                        </SelectItem>
-                                    )}
-                                </SelectContent>
-                            </Select>
+                            <Input
+                                placeholder="Mata Kuliah"
+                                defaultValue={matkul}
+                                disabled
+                                className="text-black"
+                            />
                         </div>
                         <div className="grid gap-3 w-full">
                             <Label htmlFor="pengajar">

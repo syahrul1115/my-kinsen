@@ -70,12 +70,12 @@ const FormDialogSignUpDosen = () => {
             role: ROLE_TEACHER_TEXT
         }, {
             onSuccess: async (ctx) => {
-                // TO DO ...
                 const { user } = ctx.data
                 await authClient.admin.setRole({
                     userId: user.id,
                     role: ROLE_TEACHER_TEXT,
                 })
+
                 const { name, nbm } = await formSchemaSignUpDosen.parseAsync(values)
                 await fetch('/api/dosen/save', {
                     method: 'POST',
