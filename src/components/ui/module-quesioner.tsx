@@ -46,24 +46,24 @@ export const ModuleQuesioner: React.FC<Props> = ({ index, value, control }) => {
                                     <div className="answer_quesioner w-48 py-3">
                                         <RadioGroup onValueChange={value => field.onChange(value)} defaultValue="0">
                                             <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="5" id={`moduleQuesioners.${index}.quesioners.${idx}.value.sangat-setujuh`} />
-                                                <Label htmlFor={`moduleQuesioners.${index}.quesioners.${idx}.value.sangat-setujuh`}>Sangat Setujuh</Label>
+                                                <RadioGroupItem value="5" id={`moduleQuesioners.${index}.quesioners.${idx}.value.sangat-setuju`} />
+                                                <Label htmlFor={`moduleQuesioners.${index}.quesioners.${idx}.value.sangat-setuju`}>Sangat Setuju</Label>
                                             </div>
                                             <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="4" id={`moduleQuesioners.${index}.quesioners.${idx}.value.setujuh`} />
-                                                <Label htmlFor={`moduleQuesioners.${index}.quesioners.${idx}.value.setujuh`}>Setujuh</Label>
+                                                <RadioGroupItem value="4" id={`moduleQuesioners.${index}.quesioners.${idx}.value.setuju`} />
+                                                <Label htmlFor={`moduleQuesioners.${index}.quesioners.${idx}.value.setuju`}>Setuju</Label>
                                             </div>
                                             <div className="flex items-center space-x-2">
                                                 <RadioGroupItem value="3" id={`moduleQuesioners.${index}.quesioners.${idx}.value.netral`} />
                                                 <Label htmlFor={`moduleQuesioners.${index}.quesioners.${idx}.value.netral`}>Netral</Label>
                                             </div>
                                             <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="2" id={`moduleQuesioners.${index}.quesioners.${idx}.value.tidak-setujuh`} />
-                                                <Label htmlFor={`moduleQuesioners.${index}.quesioners.${idx}.value.tidak-setujuh`}>Tidak Setujuh</Label>
+                                                <RadioGroupItem value="2" id={`moduleQuesioners.${index}.quesioners.${idx}.value.tidak-setuju`} />
+                                                <Label htmlFor={`moduleQuesioners.${index}.quesioners.${idx}.value.tidak-setuju`}>Tidak Setuju</Label>
                                             </div>
                                             <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="1" id={`moduleQuesioners.${index}.quesioners.${idx}.value.sangat-tidak-setujuh`} />
-                                                <Label htmlFor={`moduleQuesioners.${index}.quesioners.${idx}.value.sangat-tidak-setujuh`}>Sangat Tidak Setujuh</Label>
+                                                <RadioGroupItem value="1" id={`moduleQuesioners.${index}.quesioners.${idx}.value.sangat-tidak-setuju`} />
+                                                <Label htmlFor={`moduleQuesioners.${index}.quesioners.${idx}.value.sangat-tidak-setuju`}>Sangat Tidak Setuju</Label>
                                             </div>
                                         </RadioGroup>
                                     </div>
