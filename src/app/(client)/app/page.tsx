@@ -34,7 +34,7 @@ export default function Profile() {
     
     const queryGetDashboard = useQuery({ queryKey: ["get-dashboard"], queryFn: () => serviceGetDashboard() })
     
-    const queryListMatkuls = useQuery({queryKey: ["list-matkuls"], queryFn: () => serviceListMatkuls(1, 10, "")})
+    const queryListMatkuls = useQuery({queryKey: ["list-matkuls"], queryFn: () => serviceListMatkuls(1, 100, "")})
     const queryListQuesioners = useQuery({ queryKey: ["list-quesioners"], queryFn: () => serviceListQuesioners(1, 10, queryGetProfileMahasiswa.data?.data.user?.name)})
 
     React.useEffect(() => { queryListQuesioners.refetch() }, [queryGetProfileMahasiswa.data?.data.user?.name, queryListQuesioners])
