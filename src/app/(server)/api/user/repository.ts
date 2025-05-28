@@ -98,16 +98,6 @@ export async function findRangkingDosenList() {
         .orderBy('rangking', 'desc') // Urutkan berdasarkan ranking tertinggi
         .limit(5)
         .execute();
-
-    const newResultList: Array<{ id: number; name: string; rangking: string }> = [];
-
-    rangkingDosenListExists.forEach((elementExist, index) => {
-        newResultList.push({
-            id: elementExist.id,
-            name: elementExist.toName,
-            rangking: `Peringkat ${index + 1}`
-        });
-    });
-
-    return newResultList;
+    
+    return rangkingDosenListExists;
 }
