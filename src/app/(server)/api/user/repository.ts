@@ -82,8 +82,10 @@ export async function findPerformanceDosen(name: string) {
 export async function findRangkingDosenList() {
     const query = db.selectFrom('quesioner')
 
-    const rangkingDosenListExists = await query.select(
-        [
+    const rangkingDosenListExists = await db
+        .selectFrom('quesioner')
+        .distinctOn(['toName']) // Menghilangkan duplikasi berdasarkan nama dosen
+        .select([
             'id',
             'toName',
             'toNbm',
@@ -91,24 +93,23 @@ export async function findRangkingDosenList() {
             'purposeValue',
             'processValue',
             'evaluationValue'
-        ]
-    )
+        ])
+        .orderBy('toName') // Pastikan urutan agar DISTINCT ON berfungsi dengan benar
+        .orderBy('rangking', 'desc') // Urutkan berdasarkan ranking tertinggi
         .limit(5)
-        .orderBy('rangking', 'desc')
         .execute();
 
-    const newResultList = []
+    const newResultList: Array<{ id: number; name: string; rangking: string }> = [];
 
-    for (let index = 0; index < rangkingDosenListExists.length; index++) {
-        const elementExist = rangkingDosenListExists[index];
-        if (elementExist.toName !== newResultList[index]?.name) {
+    rangkingDosenListExists.forEach((elementExist, index) => {
+        if (!newResultList.some(entry => entry.name === elementExist.toName)) {
             newResultList.push({
                 id: elementExist.id,
                 name: elementExist.toName,
-                rangking: `Peringkat ${index + 1}`
-            })
+                rangking: `Peringkat ${newResultList.length + 1}`
+            });
         }
-    }
+    });
 
     return newResultList;
 }
