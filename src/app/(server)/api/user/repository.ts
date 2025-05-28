@@ -102,13 +102,11 @@ export async function findRangkingDosenList() {
     const newResultList: Array<{ id: number; name: string; rangking: string }> = [];
 
     rangkingDosenListExists.forEach((elementExist, index) => {
-        if (!newResultList.some(entry => entry.name === elementExist.toName)) {
-            newResultList.push({
-                id: elementExist.id,
-                name: elementExist.toName,
-                rangking: `Peringkat ${newResultList.length + 1}`
-            });
-        }
+        newResultList.push({
+            id: elementExist.id,
+            name: elementExist.toName,
+            rangking: `Peringkat ${index + 1}`
+        });
     });
 
     return newResultList;
