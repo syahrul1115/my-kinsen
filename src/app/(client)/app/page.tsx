@@ -266,7 +266,7 @@ export default function Profile() {
                                         </p>
                                     </div>
                                     {queryGetDashboard.data?.data.performance.rangking.dosen.length ?
-                                        queryGetDashboard.data?.data.performance.rangking.dosen.map((user, idx) => (
+                                        queryGetDashboard.data?.data.performance.rangking.dosen.sort((a, b) => Number(b.rangking) - Number(a.rangking)).map((user, idx) => (
                                             <div key={idx} className="py-3 flex items-center gap-3 w-full border-b">
                                                 <Avatar>
                                                     <AvatarImage src={""} alt={`avatar-user-${user.toName}`} />
