@@ -256,12 +256,12 @@ export default function Profile() {
                                     </TableBody>
                                 </Table>
                             </div>
-                            {queryGetDashboard.data?.data.performance.rangking.dosen.at(0)?.toName && (
+                            {queryGetDashboard.data?.data.performance.rangking.dosen.sort((a, b) => Number(b.rangking) - Number(a.rangking)).at(0)?.toName && (
                                 <div className="bg-[#fdfdfd] rounded-2xl p-8 w-full md:max-w-sm">
                                     <div className="mb-8 flex flex-col gap-1">
                                         <h3>Peringkat teratas Dosen</h3>
                                         <p className="text-black/60 text-xs">
-                                            Selamat <strong>{queryGetDashboard.data?.data.performance.rangking.dosen.at(0)?.toName || "..."}</strong>,
+                                            Selamat <strong>{queryGetDashboard.data?.data.performance.rangking.dosen.sort((a, b) => Number(b.rangking) - Number(a.rangking)).at(0)?.toName || "..."}</strong>,
                                             saat ini mendapat peringkat teratas.
                                         </p>
                                     </div>
