@@ -81,9 +81,8 @@ export async function findPerformanceDosen(name: string) {
 
 export async function findRangkingDosenList() {
     const query = db.selectFrom('quesioner')
-
-    const rangkingDosenListExists = await db
-        .selectFrom('quesioner')
+    
+    return await query
         .distinctOn(['toName']) // Menghilangkan duplikasi berdasarkan nama dosen
         .select([
             'id',
@@ -98,6 +97,4 @@ export async function findRangkingDosenList() {
         .orderBy('rangking', 'desc') // Urutkan berdasarkan ranking tertinggi
         .limit(5)
         .execute();
-    
-    return rangkingDosenListExists;
 }
