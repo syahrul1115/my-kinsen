@@ -80,22 +80,18 @@ export async function findPerformanceDosen(name: string) {
 }
 
 export async function findRangkingDosenList() {
-    try {
-        const query = db.selectFrom('quesioner')
-            .select([
-                'toName',
-                'toNbm',
-                db.fn.avg('rangking').as('avgRangking'),
-                db.fn.avg('purposeValue').as('avgPurpose'),
-                db.fn.avg('processValue').as('avgProcess'),
-                db.fn.avg('evaluationValue').as('avgEvaluation')
-            ])
-            .orderBy('avgRangking', 'desc') // Urutkan berdasarkan ranking tertinggi
-            .limit(5)
+    const query = db.selectFrom('quesioner')
+        .select([
+            'toName',
+            'toNbm',
+            db.fn.avg('rangking').as('avgRangking'),
+            db.fn.avg('purposeValue').as('avgPurpose'),
+            db.fn.avg('processValue').as('avgProcess'),
+            db.fn.avg('evaluationValue').as('avgEvaluation')
+        ])
+        .groupBy(['toName', 'toNbm'])
+        .orderBy('avgRangking', 'desc')
+        .limit(5)
 
-        return await query.execute();
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        throw new Error("Terjadi kesalahan dalam pengambilan data.");
-    }
+    return await query.execute();
 }
