@@ -92,7 +92,7 @@ export async function findRangkingDosenList() {
             db.fn.avg('processValue').as('avgProcess'),
             db.fn.avg('evaluationValue').as('avgEvaluation')
         ])
-        .groupBy('toName', 'toNbm') // Kelompokkan berdasarkan dosen
+        .groupBy('toName') // Kelompokkan berdasarkan dosen
         .orderBy('avgRangking', 'desc') // Urutkan berdasarkan ranking tertinggi
         .limit(5)
         .execute();
