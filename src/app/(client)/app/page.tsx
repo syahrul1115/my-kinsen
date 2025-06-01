@@ -278,7 +278,7 @@ export default function Profile() {
                                                     <h3>{user.toName}</h3>
                                                 </div>
                                                 <div className="ml-auto text-xs capitalize font-bold">
-                                                    <h1>{user.rangking}</h1>
+                                                    <h1>{parseFloat(user.rangking)}</h1>
                                                 </div>
                                             </div>
                                         ))
