@@ -60,13 +60,12 @@ export type Dashboard = {
         } | null,
         rangking: {
             dosen: {
-                id: string;
-                evaluationValue: string;
-                processValue: string;
-                purposeValue: string;
-                rangking: string;
                 toName: string;
                 toNbm: string;
+                avgRangking: number;
+                avgPurpose: number;
+                avgProcess: number;
+                avgEvaluation: number;
             }[]
         }
     };

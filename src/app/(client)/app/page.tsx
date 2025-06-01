@@ -256,17 +256,17 @@ export default function Profile() {
                                     </TableBody>
                                 </Table>
                             </div>
-                            {queryGetDashboard.data?.data.performance.rangking.dosen.sort((a, b) => Number(b.rangking) - Number(a.rangking)).at(0)?.toName && (
+                            {queryGetDashboard.data?.data.performance.rangking.dosen.sort((a, b) => Number(b.avgRangking) - Number(a.avgRangking)).at(0)?.toName && (
                                 <div className="bg-[#fdfdfd] rounded-2xl p-8 w-full md:max-w-sm">
                                     <div className="mb-8 flex flex-col gap-1">
                                         <h3>Peringkat teratas Dosen</h3>
                                         <p className="text-black/60 text-xs">
-                                            Selamat <strong>{queryGetDashboard.data?.data.performance.rangking.dosen.sort((a, b) => Number(b.rangking) - Number(a.rangking)).at(0)?.toName || "..."}</strong>,
+                                            Selamat <strong>{queryGetDashboard.data?.data.performance.rangking.dosen.sort((a, b) => Number(b.avgRangking) - Number(a.avgRangking)).at(0)?.toName || "..."}</strong>,
                                             saat ini mendapat peringkat teratas.
                                         </p>
                                     </div>
                                     {queryGetDashboard.data?.data.performance.rangking.dosen.length ?
-                                        queryGetDashboard.data?.data.performance.rangking.dosen.sort((a, b) => Number(b.rangking) - Number(a.rangking)).map((user, idx) => (
+                                        queryGetDashboard.data?.data.performance.rangking.dosen.sort((a, b) => Number(b.avgRangking) - Number(a.avgRangking)).map((user, idx) => (
                                             <div key={idx} className="py-3 flex items-center gap-3 w-full border-b">
                                                 <Avatar>
                                                     <AvatarImage src={""} alt={`avatar-user-${user.toName}`} />
@@ -278,7 +278,7 @@ export default function Profile() {
                                                     <h3>{user.toName}</h3>
                                                 </div>
                                                 <div className="ml-auto text-xs capitalize font-bold">
-                                                    <h1>{parseFloat(Number(user.rangking).toFixed(2))}</h1>
+                                                    <h1>{parseFloat(Number(user.avgRangking).toFixed(2))}</h1>
                                                 </div>
                                             </div>
                                         ))

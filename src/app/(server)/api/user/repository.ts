@@ -81,9 +81,6 @@ export async function findPerformanceDosen(name: string) {
 
 export async function findRangkingDosenList() {
     const query = db.selectFrom('quesioner')
-    
-    return await query
-        .distinctOn(['toName']) // Menghilangkan duplikasi berdasarkan nama dosen
         .select([
             'toName',
             'toNbm',
@@ -92,8 +89,9 @@ export async function findRangkingDosenList() {
             db.fn.avg('processValue').as('avgProcess'),
             db.fn.avg('evaluationValue').as('avgEvaluation')
         ])
-        .groupBy('toName') // Kelompokkan berdasarkan dosen
-        .orderBy('avgRangking', 'desc') // Urutkan berdasarkan ranking tertinggi
+        .groupBy(['toName', 'toNbm'])
+        .orderBy('avgRangking', 'desc')
         .limit(5)
-        .execute();
+
+    return await query.execute();
 }
