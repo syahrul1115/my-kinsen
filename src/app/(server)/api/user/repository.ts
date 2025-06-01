@@ -85,16 +85,15 @@ export async function findRangkingDosenList() {
     return await query
         .distinctOn(['toName']) // Menghilangkan duplikasi berdasarkan nama dosen
         .select([
-            'id',
             'toName',
             'toNbm',
-            'rangking',
-            'purposeValue',
-            'processValue',
-            'evaluationValue'
+            db.fn.avg('rangking').as('avgRangking'),
+            db.fn.avg('purposeValue').as('avgPurpose'),
+            db.fn.avg('processValue').as('avgProcess'),
+            db.fn.avg('evaluationValue').as('avgEvaluation')
         ])
-        .orderBy('toName') // Pastikan urutan agar DISTINCT ON berfungsi dengan benar
-        .orderBy('rangking', 'desc') // Urutkan berdasarkan ranking tertinggi
+        .groupBy('toName') // Kelompokkan berdasarkan dosen
+        .orderBy('avgRangking', 'desc') // Urutkan berdasarkan ranking tertinggi
         .limit(5)
         .execute();
 }
