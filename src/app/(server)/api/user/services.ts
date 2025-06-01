@@ -61,8 +61,12 @@ export type Dashboard = {
         rangking: {
             dosen: {
                 id: string;
-                name: string;
+                evaluationValue: string;
+                processValue: string;
+                purposeValue: string;
                 rangking: string;
+                toName: string;
+                toNbm: string;
             }[]
         }
     };
